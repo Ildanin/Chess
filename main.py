@@ -21,7 +21,8 @@ while True:
         elif event.type == pg.KEYDOWN:
             key = event.key
             if key == pg.K_SPACE:
-                board.reset()
+                #board.reset()
+                pass
     
     '''possible_moves = board.position_handler.get_possible_moves()
     if board.move_piece(*possible_moves[randrange(0, len(possible_moves))]):
