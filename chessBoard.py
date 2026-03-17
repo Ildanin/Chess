@@ -1,7 +1,7 @@
 import pygame as pg
 from settings import *
 from positionClass import Position
-from notation import ForsythEdwardsNotation, PortableGameNotation
+from notation import ForsythEdwardsNotation
 import os
 
 
