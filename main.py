@@ -1,5 +1,5 @@
 from chessBoard import *
-from settings import WIN_WIDTH, WIN_HEIGHT
+from config import WIN_WIDTH, WIN_HEIGHT
 from time import perf_counter
 from random import randrange
 
