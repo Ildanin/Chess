@@ -196,12 +196,10 @@ class Position:
 
     def ischecked(self, board_x1: int, board_y1: int, board_x2: int, board_y2: int) -> bool:
         "Returns True if the king will be in check after the given move, False otherwise"
-        saved_position = self.pos_array.copy() #saves the state of the game
-        saved_states = self.en_passant, self.castles.copy()
+        saved_states = self.pos_array.copy(), self.castles.copy(), self.en_passant #saves the state of the game
         self.raw_move(board_x1, board_y1, board_x2, board_y2) #makes a move
         ischecked = self.ischeck()
-        self.pos_array = saved_position #return pos_array to its initial state
-        self.en_passant, self.castles = saved_states
+        self.pos_array, self.castles, self.en_passant = saved_states #returns pos_array to its initial state
         return ischecked
 
     "'ismovable' functions return True if the piece can make the given move, False otherwise"
