@@ -99,7 +99,7 @@ class Position:
         return moves
     
     def move(self, board_x1: int, board_y1: int, board_x2: int, board_y2: int, 
-             promote_to: str | None = None, available_squares: list[tuple[int, int]] | None = None) -> bool:
+             promote_to: str = 'q', available_squares: list[tuple[int, int]] | None = None) -> bool:
         "Moves the piece if it is posible. Returns True if moved successfully, False otherwise"
         if self.is_move_possible(board_x1, board_y1, board_x2, board_y2, available_squares):
             if self.get_piece(board_x1, board_y1).lower() == 'p':
