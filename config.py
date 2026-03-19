@@ -12,3 +12,14 @@ BLACK_COLOR = (118, 150, 86)
 HIGHLIGHT_COLOR = (0, 255, 0)
 HIGHLIGHT_MOVES = True
 INIT_POSITION = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
+
+#Network stats
+INFO = [2, 10, 10, 3]
+ACTIVATOR = 'L_ReLU'
+NORMALIZER = 'sigmoid'
+FACTOR_RANGE = (-1, 1)
+BIAS_RANGE = (-1, 1)
+
+#Learning stats
+ALPHA = 0.2
+CYCLES = 10
