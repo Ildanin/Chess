@@ -24,7 +24,7 @@ def file_transform(input_filename: str, output_filename: str | None = None) -> s
                 pgn_string = remove_assessments(pgn_string)
                 data.append((avg_elo, pgn_string))
     with open(output_filename, 'w') as out_file:
-        for avg_elo, pgn_string in data:
+        for avg_elo, pgn_string in sorted(data, key=lambda d: d[0], reverse=True):
             out_file.write("LobbyElo " + str(avg_elo) + '\n')
             out_file.write(pgn_string)
     return output_filename
