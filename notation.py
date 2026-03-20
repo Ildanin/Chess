@@ -17,6 +17,9 @@ class BoardSquare:
         self.file = file
         self.rank = rank
         self.id = file + 8*rank
+    
+    def __iter__(self):
+        return iter((self.file, self.rank))
 
 class BoardMove:
     def __init__(self, file1: int, rank1: int, file2: int, rank2: int, piece: str | None = None) -> None:
