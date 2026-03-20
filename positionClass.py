@@ -99,7 +99,7 @@ class Position:
         return moves
     
     def move(self, file1: int, rank1: int, file2: int, rank2: int, 
-             promote_to: str = 'q', available_squares: list[tuple[int, int]] | None = None) -> bool:
+             promote_to: str | None = None, available_squares: list[tuple[int, int]] | None = None) -> bool:
         "Moves the piece if it is posible. Returns True if moved successfully, False otherwise"
         if self.is_move_possible(file1, rank1, file2, rank2, available_squares):
             if self.get_piece(file1, rank1).lower() == 'p':
