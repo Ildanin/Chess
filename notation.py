@@ -12,6 +12,12 @@ def algebraic_to_board(algebraic: str) -> tuple[int, int]:
     rank = 8 - int(y_comp)
     return file, rank
 
+class BoardMove:
+    def __init__(self, file1: int, rank1: int, file2: int, rank2: int, piece: str | None = None) -> None:
+        self.start_square = (file1, rank1)
+        self.target_square = (file2, rank2)
+        self.piece = piece
+
 class ForsythEdwardsNotation:
     def __init__(self, FEN: str = CLASSIC_CHESS_INITIAL_POSITION) -> None:
         self.string = FEN
