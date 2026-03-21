@@ -1,17 +1,5 @@
 CLASSIC_CHESS_INITIAL_POSITION = "nbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 
-def board_to_algebraic(file: int, rank: int) -> str:
-    x_comp = 'abcdefgh'[file]
-    y_comp = str(8 - rank)
-    return x_comp + y_comp
-
-def algebraic_to_board(algebraic: str) -> tuple[int, int]:
-    x_comp = algebraic[0]
-    y_comp = algebraic[1]
-    file = 'abcdefgh'.index(x_comp)
-    rank = 8 - int(y_comp)
-    return file, rank
-
 class BoardSquare:
     def __init__(self, file: int, rank: int) -> None:
         self.file = file
@@ -21,14 +9,21 @@ class BoardSquare:
     def __iter__(self):
         return iter((self.file, self.rank))
     
-    def __eq__(self, square) -> bool:
+    def __eq__(self, square: object) -> bool:
         if square == None:
             return False
+        elif type(square) != BoardSquare:
+            raise ValueError(f"BoardSquare object cannot be compared with {type(square)} object")
         return (self.file == square.file and self.rank == square.rank)
 
     def isinrange(self, lower_bound: int = 0, upper_bound: int = 8) -> bool:
         return (lower_bound <= self.file < upper_bound and 
                 lower_bound <= self.rank < upper_bound)
+    
+    def get_algebraic(self) -> str:
+        x_comp = 'abcdefgh'[self.file]
+        y_comp = str(8 - self.rank)
+        return x_comp + y_comp
 
 class BoardMove:
     def __init__(self, file1: int, rank1: int, file2: int, rank2: int) -> None:
@@ -37,6 +32,15 @@ class BoardMove:
     
     def __iter__(self):
         return iter((*self.start_square, *self.target_square))
+
+
+def algebraic_to_board(algebraic: str) -> BoardSquare:
+    x_comp = algebraic[0]
+    y_comp = algebraic[1]
+    file = 'abcdefgh'.index(x_comp)
+    rank = 8 - int(y_comp)
+    return BoardSquare(file, rank)
+
 
 class ForsythEdwardsNotation:
     def __init__(self, FEN: str = CLASSIC_CHESS_INITIAL_POSITION) -> None:
@@ -70,7 +74,7 @@ class ForsythEdwardsNotation:
                 'k': 'k' in self.list[2], 
                 'q': 'q' in self.list[2]}
     
-    def get_en_passant(self) -> tuple | None:
+    def get_en_passant(self) -> BoardSquare | None:
         if self.list[3] != '-':
             return algebraic_to_board(self.list[3])
     

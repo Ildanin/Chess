@@ -1,5 +1,5 @@
 from math import copysign
-from notation import ForsythEdwardsNotation, board_to_algebraic, BoardMove, BoardSquare
+from notation import ForsythEdwardsNotation, BoardMove, BoardSquare
 from itertools import product
 
 class Position:
@@ -57,7 +57,7 @@ class Position:
         if notation[-1] == '':
             notation += '-'
         if self.en_passant:
-            notation += board_to_algebraic(*self.en_passant) #add to class
+            notation += self.en_passant.get_algebraic()
         else:
             notation += ' - '
         notation += f'{self.halfmove_clock} {self.fullmove_number}'
