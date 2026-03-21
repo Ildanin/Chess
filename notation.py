@@ -65,10 +65,7 @@ class ForsythEdwardsNotation:
         return(position)
     
     def get_is_white_to_move(self) -> bool:
-        if self.list[1] == 'w':
-            return True
-        else:
-            return False
+        return self.list[1] == 'w'
     
     def get_castles(self) -> dict[str, bool]:
         return {'K': 'K' in self.list[2], 
