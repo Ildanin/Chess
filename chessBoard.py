@@ -1,7 +1,7 @@
 import pygame as pg
 from config import *
 from positionClass import Position
-from notation import ForsythEdwardsNotation
+from notation import ForsythEdwardsNotation, BoardSquare, BoardMove
 import os
 
 
@@ -34,8 +34,8 @@ class ChessBoard:
 
         self.position = position
 
-        self.prev_pos: tuple[int, int] | None = None
-        self.higlighted_squares: list[tuple[int, int]] | None = None
+        self.prev_square: BoardSquare | None = None
+        self.higlighted_squares: list[BoardSquare] | None = None
         self.promotion = None
 
         self.piece_assets = {
@@ -55,64 +55,64 @@ class ChessBoard:
             }
         self.draw()
 
-    def get_square(self, mouse_x: int, mouse_y: int) -> tuple[int, int]: #add flip
+    def get_square(self, mouse_x: int, mouse_y: int) -> BoardSquare: #add flip
         "Returns the coordinates of the square relative to its position on the screen"
         file = (mouse_x-self.x) // self.square_size
         rank = (mouse_y-self.y) // self.square_size
-        return file, rank
+        return BoardSquare(file, rank)
 
-    def get_piece(self, file: int, rank: int) -> str:
+    def get_piece(self, square: BoardSquare) -> str:
         "Returns the piece located in the given coordinates"
-        if 0 <= file < 8 and 0 <= rank < 8:
-            return self.position.get_piece(file, rank)
+        if square.isinrange():
+            return self.position.get_piece(square)
         return ''
     
     def process_left_click(self, mouse_x: int, mouse_y: int) -> None:
         "Handles user's lmb press"
-        file, rank = self.get_square(mouse_x, mouse_y)
-        if not(0 <= file < 8 and 0 <= rank < 8):
+        square = self.get_square(mouse_x, mouse_y)
+        if not(square.isinrange()):
             return None
-        if self.prev_pos == None:
-            self.pick(file, rank)
+        if self.prev_square == None:
+            self.pick(square)
         elif self.promotion != None:
-            self.pick_promotion(file, rank)
+            self.pick_promotion(square)
             self.unpick()
-        elif (file, rank) == self.prev_pos:
+        elif square == self.prev_square:
             self.unpick()
-        elif self.position.is_move_possible(*self.prev_pos, file, rank, self.higlighted_squares):
-            if self.position.ispromotion(rank, self.get_piece(*self.prev_pos)):
-                self.position.set_piece(*self.prev_pos, '')
-                self.promotion = (file, rank)
+        elif self.position.is_move_possible(BoardMove(*self.prev_square, *square), self.higlighted_squares):
+            if self.position.ispromotion(square.rank, self.get_piece(self.prev_square)):
+                self.position.set_piece(BoardSquare(*self.prev_square), '')
+                self.promotion = square
                 self.higlighted_squares = [self.promotion]
             else:
-                self.position.move(*self.prev_pos, file, rank, available_squares=self.higlighted_squares)
+                self.position.move(BoardMove(*self.prev_square, *square), available_squares=self.higlighted_squares)
                 self.unpick()
         else:
-            self.pick(file, rank)
+            self.pick(square)
     
-    def pick(self, file: int, rank: int) -> None:
-        self.prev_pos = (file, rank)
+    def pick(self, square: BoardSquare) -> None:
+        self.prev_square = square
         if self.higlight_moves:
-            self.higlighted_squares = self.position.get_highlights(file, rank)
+            self.higlighted_squares = self.position.get_highlights(square)
 
     def unpick(self) -> None:
-        self.prev_pos = None
+        self.prev_square = None
         self.higlighted_squares = None
 
-    def pick_promotion(self, file: int, rank: int) -> None:
+    def pick_promotion(self, square: BoardSquare) -> None:
         "Handles user's clicks on the screen during a pawn promotion"
-        if self.promotion == None or self.prev_pos == None:
+        if self.promotion == None or self.prev_square == None:
             raise ValueError("no pawn promotion is present")
-        if self.promotion[1] == 0:
-            if self.promotion[0] == file and (0 <= rank < 4):
-                self.position.move(*self.prev_pos, *self.promotion, ['Q', 'N', 'R', 'B'][rank], self.higlighted_squares)
+        if self.promotion.rank == 0:
+            if self.promotion.file == square.file and (0 <= square.rank < 4):
+                self.position.move(BoardMove(*self.prev_square, *self.promotion), ['Q', 'N', 'R', 'B'][square.rank], self.higlighted_squares)
             else:
-                self.position.set_piece(*self.prev_pos, 'P')
-        elif self.promotion[1] == 7:
-            if self.promotion[0] == file and (4 <= rank < 8):
-                self.position.move(*self.prev_pos, *self.promotion, ['q', 'n', 'r', 'b'][7 - rank], self.higlighted_squares)
+                self.position.set_piece(self.prev_square, 'P')
+        elif self.promotion.rank == 7:
+            if self.promotion.file == square.file and (4 <= square.rank < 8):
+                self.position.move(BoardMove(*self.prev_square, *self.promotion), ['q', 'n', 'r', 'b'][7 - square.rank], self.higlighted_squares)
             else:
-                self.position.set_piece(*self.prev_pos, 'p')
+                self.position.set_piece(self.prev_square, 'p')
         self.promotion = None        
     
     def draw(self) -> None: #add flip
@@ -164,24 +164,24 @@ class ChessBoard:
     def draw_promotion_screen(self) -> None: #add flip
         if self.promotion == None:
             return None
-        if self.promotion[1] == 0:
+        if self.promotion.file == 0:
             pg.draw.rect(self.screen, (255, 255, 255), 
-                            pg.Rect(self.x + self.promotion[0]*self.square_size, 
-                                    self.y + self.promotion[1]*self.square_size, 
+                            pg.Rect(self.x + self.promotion.file * self.square_size, 
+                                    self.y + self.promotion.rank * self.square_size, 
                                     self.square_size, 4*self.square_size))
-            for y, piece in zip(range(self.promotion[1], self.promotion[1]+4, 1), ['Q', 'N', 'R', 'B']):
+            for y, piece in zip(range(self.promotion.rank, self.promotion.rank +4, 1), ['Q', 'N', 'R', 'B']):
                 self.screen.blit(self.piece_assets[piece], 
-                                (self.x + self.promotion[0]*self.square_size, 
-                                    self.y + y*self.square_size))
-        elif self.promotion[1] == 7:
+                                (self.x + self.promotion.file * self.square_size, 
+                                    self.y + y * self.square_size))
+        elif self.promotion.file == 7:
             pg.draw.rect(self.screen, (255, 255, 255), 
-                            pg.Rect(self.x + self.promotion[0]*self.square_size, 
-                                    self.y + (self.promotion[1] - 3)*self.square_size, 
+                            pg.Rect(self.x + self.promotion.file * self.square_size, 
+                                    self.y + (self.promotion.file - 3) * self.square_size, 
                                     self.square_size, 4*self.square_size))
-            for y, piece in zip(range(self.promotion[1], self.promotion[1]-4, -1), ['q', 'n', 'r', 'b']):
+            for y, piece in zip(range(self.promotion.file, self.promotion.file -4, -1), ['q', 'n', 'r', 'b']):
                 self.screen.blit(self.piece_assets[piece], 
-                                (self.x + self.promotion[0]*self.square_size, 
-                                    self.y + y*self.square_size))
+                                (self.x + self.promotion.rank * self.square_size, 
+                                    self.y + y * self.square_size))
 
     def ischekmate(self) -> bool:
         "Returns True if position is a checkmate, False otherwise"
@@ -190,14 +190,3 @@ class ChessBoard:
     def isdraw(self) -> bool:
         "Returns True if position is a draw, False otherwise"
         return self.position.isdraw()
-    
-'''    def reset(self) -> list[str]:
-        "Returns the board to its originall state"
-        out = self.history.copy()
-        self.history.clear()
-        self.position = self.get_position(self.init_FEN_position)
-        self.position_handler.__init__(self.position)
-        self.prev_pos = None
-        self.higlighted_squares = None
-        self.draw()
-        return(out)'''
