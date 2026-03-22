@@ -1,5 +1,4 @@
 from typing import Iterator
-CLASSIC_CHESS_INITIAL_POSITION = "nbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 
 
 class BoardSquare:
@@ -45,7 +44,7 @@ def algebraic_to_board(algebraic: str) -> BoardSquare:
 
 
 class ForsythEdwardsNotation:
-    def __init__(self, FEN: str = CLASSIC_CHESS_INITIAL_POSITION) -> None:
+    def __init__(self, FEN: str = "nbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1") -> None:
         self.string = FEN
         self.list = FEN.split()
     
