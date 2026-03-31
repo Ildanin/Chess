@@ -126,18 +126,13 @@ class ChessBoard:
     def draw_board(self) -> None: #add flip
         "Draws the board to the screen"
         for file, rank in product(range(0, 8), repeat=2):
+            rect = pg.Rect(self.square_size * file + self.x, 
+                           self.square_size * rank + self.y, 
+                           self.square_size, self.square_size)
             if (rank + file)%2 == 0:
-                pg.draw.rect(self.screen, 
-                                self.white_color, 
-                                pg.Rect(self.square_size * file + self.x, 
-                                        self.square_size * rank + self.y, 
-                                        self.square_size, self.square_size))
+                pg.draw.rect(self.screen, self.white_color, rect)
             else:
-                pg.draw.rect(self.screen, 
-                                self.black_color, 
-                                pg.Rect(self.square_size * file + self.x, 
-                                        self.square_size * rank + self.y, 
-                                        self.square_size, self.square_size))
+                pg.draw.rect(self.screen, self.black_color, rect)
     
     def draw_coordinates(self) -> None: #add flip #todo
         pass
