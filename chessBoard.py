@@ -1,4 +1,5 @@
 import pygame as pg
+from itertools import product
 from config import *
 from positionClass import Position
 from notation import ForsythEdwardsNotation, BoardSquare, BoardMove
@@ -125,20 +126,19 @@ class ChessBoard:
 
     def draw_board(self) -> None: #add flip
         "Draws the board to the screen"
-        for rank in range(0, 8):
-            for file in range(0, 8):
-                if (rank + file)%2 == 0:
-                    pg.draw.rect(self.screen, 
-                                 self.white_color, 
-                                 pg.Rect(self.square_size * file + self.x, 
-                                         self.square_size * rank + self.y, 
-                                         self.square_size, self.square_size))
-                else:
-                    pg.draw.rect(self.screen, 
-                                 self.black_color, 
-                                 pg.Rect(self.square_size * file + self.x, 
-                                         self.square_size * rank + self.y, 
-                                         self.square_size, self.square_size))
+        for file, rank in product(range(0, 8), repeat=2):
+            if (rank + file)%2 == 0:
+                pg.draw.rect(self.screen, 
+                                self.white_color, 
+                                pg.Rect(self.square_size * file + self.x, 
+                                        self.square_size * rank + self.y, 
+                                        self.square_size, self.square_size))
+            else:
+                pg.draw.rect(self.screen, 
+                                self.black_color, 
+                                pg.Rect(self.square_size * file + self.x, 
+                                        self.square_size * rank + self.y, 
+                                        self.square_size, self.square_size))
     
     def draw_coordinates(self) -> None: #add flip #todo
         pass
