@@ -23,8 +23,8 @@ class Position:
         "Returns the piece given the square"
         return self.pos_array[square.id]
     
-    def get_line(self, line: int) -> list[str]:
-        return self.pos_array[8*line : 8*(line+1)]
+    def get_rank(self, rank: int) -> list[str]:
+        return self.pos_array[8*rank : 8*(rank+1)]
     
     def set_piece(self, square: BoardSquare, piece: str = '') -> None:
         self.pos_array[square.id] = piece
