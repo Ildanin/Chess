@@ -138,10 +138,8 @@ def ismovable_bpawn(position: Position, move: BoardMove) -> bool:
 
 def ismovable_knight(position: Position, move: BoardMove) -> bool:
     file1, rank1, file2, rank2 = move
-    if ((abs(file2 - file1) == 1 and abs(rank2 - rank1) == 2) or 
-        (abs(rank2 - rank1) == 1 and abs(file2 - file1) == 2)):
-        return True
-    return False
+    return((abs(file2 - file1) == 1 and abs(rank2 - rank1) == 2) or 
+           (abs(rank2 - rank1) == 1 and abs(file2 - file1) == 2))
 
 def ismovable_bishop(position: Position, move: BoardMove) -> bool:
     file1, rank1, file2, rank2 = move
