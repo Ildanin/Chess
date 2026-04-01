@@ -227,12 +227,12 @@ class Position:
         if file1 == file2 and self.get_piece(move.target_square) == '':
             if rank2 - rank1 == -1: 
                 return True
-            elif rank1 == 6 and rank2 == 4 and self.get_piece(BoardSquare(file2, 5)) == '': 
+            if rank1 == 6 and rank2 == 4 and self.get_piece(BoardSquare(file2, 5)) == '': 
                 return True
         elif (rank2 - rank1 == -1 and abs(file2 - file1) == 1):
             if self.get_piece(move.target_square) != '': 
                 return True
-            elif move.target_square == self.en_passant: 
+            if move.target_square == self.en_passant: 
                 return True
         return False
 
@@ -241,12 +241,12 @@ class Position:
         if file1 == file2 and self.get_piece(move.target_square) == '':
             if rank2 - rank1 == 1: 
                 return True
-            elif rank1 == 1 and rank2 == 3 and self.get_piece(BoardSquare(file2, 2)) == '': 
+            if rank1 == 1 and rank2 == 3 and self.get_piece(BoardSquare(file2, 2)) == '': 
                 return True
         elif (rank2 - rank1 == 1 and abs(file2 - file1) == 1):
             if self.get_piece(move.target_square) != '': 
                 return True
-            elif move.target_square == self.en_passant: 
+            if move.target_square == self.en_passant: 
                 return True
         return False
 
@@ -275,7 +275,7 @@ class Position:
                 if self.get_piece(BoardSquare(file1, y)) != '': 
                     return False
             return True
-        elif rank1 == rank2:
+        if rank1 == rank2:
             x_direction = int(copysign(1, file2-file1))
             for x in range(file1 + x_direction, file2, x_direction):
                 if self.get_piece(BoardSquare(x, rank1)) != '': 
@@ -365,28 +365,28 @@ class Position:
             piece = self.get_piece(BoardSquare(x, y))
             if piece == bishop or piece == queen:
                 return True
-            elif piece != '':
+            if piece != '':
                 break
         for x, y in zip(range(square.file+1, 8, 1), 
                         range(square.rank-1, -1, -1)):
             piece = self.get_piece(BoardSquare(x, y))
             if piece == bishop or piece == queen:
                 return True
-            elif piece != '':
+            if piece != '':
                 break
         for x, y in zip(range(square.file-1, -1, -1), 
                         range(square.rank+1, 8, 1)):
             piece = self.get_piece(BoardSquare(x, y))
             if piece == bishop or piece == queen:
                 return True
-            elif piece != '':
+            if piece != '':
                 break
         for x, y in zip(range(square.file+1, 8, 1), 
                         range(square.rank+1, 8, 1)):
             piece = self.get_piece(BoardSquare(x, y))
             if piece == bishop or piece == queen:
                 return True
-            elif piece != '':
+            if piece != '':
                 break
         return False
 
@@ -401,25 +401,25 @@ class Position:
             piece = self.get_piece(BoardSquare(square.file, y))
             if piece == rook or piece == queen:
                 return True
-            elif piece != '':
+            if piece != '':
                 break
         for y in range(square.rank-1, -1, -1):
             piece = self.get_piece(BoardSquare(square.file, y))
             if piece == rook or piece == queen:
                 return True
-            elif piece != '':
+            if piece != '':
                 break
         for x in range(square.file+1, 8, 1):
             piece = self.get_piece(BoardSquare(x, square.rank))
             if piece == rook or piece == queen:
                 return True
-            elif piece != '':
+            if piece != '':
                 break
         for x in range(square.file-1, -1, -1):
             piece = self.get_piece(BoardSquare(x, square.rank))
             if piece == rook or piece == queen:
                 return True
-            elif piece != '':
+            if piece != '':
                 break
         return False
 
