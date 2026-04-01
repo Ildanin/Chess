@@ -1,4 +1,4 @@
-from typing import Iterator
+from typing import Any, Iterator
 
 
 class BoardSquare:
@@ -7,6 +7,9 @@ class BoardSquare:
         self.rank = rank
         self.id = file + 8*rank
     
+    def __str__(self) -> str:
+        return f'{self.file} {self.rank}'
+
     def __iter__(self) -> Iterator[int]:
         return iter((self.file, self.rank))
     
@@ -18,8 +21,17 @@ class BoardSquare:
         return (self.file == square.file and self.rank == square.rank)
 
     def isinrange(self, lower_bound: int = 0, upper_bound: int = 8) -> bool:
-        return (lower_bound <= self.file < upper_bound and 
-                lower_bound <= self.rank < upper_bound)
+        return(lower_bound <= self.file < upper_bound and 
+               lower_bound <= self.rank < upper_bound)
+
+    def move(self, dx: int = 0, dy: int = 0) -> None:
+        self.file += dx
+        self.rank += dy
+        self.id = self.file + 8*self.rank
+
+    def moved(self, dx: int = 0, dy: int = 0):
+        self.move(dx, dy)
+        return self
     
     def get_algebraic(self) -> str:
         x_comp = 'abcdefgh'[self.file]
