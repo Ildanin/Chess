@@ -134,13 +134,13 @@ class Position:
         if piece == 'P':
             if move.target_square == self.en_passant:
                 self.set_piece(BoardSquare(file2, rank2 + 1))
-            elif rank2 - rank1 == -2:
+            elif move.get_dy() == -2:
                 self.en_passant = BoardSquare(file1, 5)
                 return None
         elif piece == 'p':
             if move.target_square == self.en_passant:
                 self.set_piece(BoardSquare(file2, rank2 - 1))
-            elif rank2 - rank1 == 2:
+            elif move.get_dy() == 2:
                 self.en_passant = BoardSquare(file1, 2)
                 return None
         self.en_passant = None
@@ -224,12 +224,12 @@ class Position:
     
     def ismovable_wpawn(self, move: BoardMove) -> bool:
         file1, rank1, file2, rank2 = move
-        if file1 == file2 and self.get_piece(move.target_square) == '':
-            if rank2 - rank1 == -1: 
+        if move.get_dx() == 0 and self.get_piece(move.target_square) == '':
+            if move.get_dy() == -1: 
                 return True
             if rank1 == 6 and rank2 == 4 and self.get_piece(BoardSquare(file2, 5)) == '': 
                 return True
-        elif (rank2 - rank1 == -1 and abs(file2 - file1) == 1):
+        elif (move.get_dy() == -1 and abs(move.get_dx()) == 1):
             if self.get_piece(move.target_square) != '': 
                 return True
             if move.target_square == self.en_passant: 
@@ -238,12 +238,12 @@ class Position:
 
     def ismovable_bpawn(self, move: BoardMove) -> bool:
         file1, rank1, file2, rank2 = move
-        if file1 == file2 and self.get_piece(move.target_square) == '':
-            if rank2 - rank1 == 1: 
+        if move.get_dx() == 0 and self.get_piece(move.target_square) == '':
+            if move.get_dy() == 1: 
                 return True
             if rank1 == 1 and rank2 == 3 and self.get_piece(BoardSquare(file2, 2)) == '': 
                 return True
-        elif (rank2 - rank1 == 1 and abs(file2 - file1) == 1):
+        elif (move.get_dy() == 1 and abs(move.get_dx()) == 1):
             if self.get_piece(move.target_square) != '': 
                 return True
             if move.target_square == self.en_passant: 
@@ -251,16 +251,15 @@ class Position:
         return False
 
     def ismovable_knight(self, move: BoardMove) -> bool:
-        file1, rank1, file2, rank2 = move
-        return((abs(file2 - file1) == 1 and abs(rank2 - rank1) == 2) or 
-               (abs(rank2 - rank1) == 1 and abs(file2 - file1) == 2))
+        return((abs(move.get_dx()) == 1 and abs(move.get_dy()) == 2) or 
+               (abs(move.get_dy()) == 1 and abs(move.get_dx()) == 2))
 
     def ismovable_bishop(self, move: BoardMove) -> bool:
         file1, rank1, file2, rank2 = move
-        if abs(file2 - file1) != abs(rank2 - rank1): 
+        if abs(move.get_dx()) != abs(move.get_dy()): 
             return False
-        x_direction = int(copysign(1, file2-file1))
-        y_direction = int(copysign(1, rank2-rank1))
+        x_direction = int(copysign(1, move.get_dx()))
+        y_direction = int(copysign(1, move.get_dy()))
         for x, y in zip(range(file1 + x_direction, file2, x_direction), 
                         range(rank1 + y_direction, rank2, y_direction)):
             if self.get_piece(BoardSquare(x, y)) != '': 
@@ -269,14 +268,14 @@ class Position:
 
     def ismovable_rook(self, move: BoardMove) -> bool:
         file1, rank1, file2, rank2 = move
-        if file1 == file2:
-            y_direction = int(copysign(1, rank2-rank1))
+        if move.get_dx() == 0:
+            y_direction = int(copysign(1, move.get_dy()))
             for y in range(rank1 + y_direction, rank2, y_direction):
                 if self.get_piece(BoardSquare(file1, y)) != '': 
                     return False
             return True
-        if rank1 == rank2:
-            x_direction = int(copysign(1, file2-file1))
+        if move.get_dy() == 0:
+            x_direction = int(copysign(1, move.get_dx()))
             for x in range(file1 + x_direction, file2, x_direction):
                 if self.get_piece(BoardSquare(x, rank1)) != '': 
                     return False
@@ -289,7 +288,7 @@ class Position:
 
     def ismovable_king(self, move: BoardMove) -> bool:
         file1, rank1, file2, rank2 = move
-        if (-1 <= file2 - file1 <= 1) and (-1 <= rank2 - rank1 <= 1): 
+        if (-1 <= move.get_dx() <= 1) and (-1 <= move.get_dy() <= 1): 
             return True
         if self.isattacked(move.start_square):
             return False
