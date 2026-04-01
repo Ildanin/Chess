@@ -108,17 +108,17 @@ class Position:
     
     def move(self, move: BoardMove, promote_to: str | None = None, available_squares: list[BoardSquare] | None = None) -> bool:
         "Moves the piece if it is posible. Returns True if moved successfully, False otherwise"
-        if self.is_move_possible(move, available_squares):
-            if self.get_piece(move.start_square).lower() == 'p':
-                self.halfmove_clock = 0
-            else:
-                self.halfmove_clock += 1
-            if self.is_white_to_move == False:
-                self.fullmove_number += 1
-            self.raw_move(move, promote_to)
-            self.is_white_to_move = not self.is_white_to_move
-            return True
-        return False
+        if not(self.is_move_possible(move, available_squares)):
+            return False
+        if self.get_piece(move.start_square).lower() == 'p':
+            self.halfmove_clock = 0
+        else:
+            self.halfmove_clock += 1
+        if self.is_white_to_move == False:
+            self.fullmove_number += 1
+        self.raw_move(move, promote_to)
+        self.is_white_to_move = not self.is_white_to_move
+        return True
     
     def raw_move(self, move: BoardMove, promote_to: str | None = None) -> None:
         "Makes a move without any checks and does not pass the move"
@@ -252,10 +252,8 @@ class Position:
 
     def ismovable_knight(self, move: BoardMove) -> bool:
         file1, rank1, file2, rank2 = move
-        if ((abs(file2 - file1) == 1 and abs(rank2 - rank1) == 2) or 
-            (abs(rank2 - rank1) == 1 and abs(file2 - file1) == 2)):
-            return True
-        return False
+        return((abs(file2 - file1) == 1 and abs(rank2 - rank1) == 2) or 
+               (abs(rank2 - rank1) == 1 and abs(file2 - file1) == 2))
 
     def ismovable_bishop(self, move: BoardMove) -> bool:
         file1, rank1, file2, rank2 = move
@@ -286,10 +284,8 @@ class Position:
         return False
 
     def ismovable_queen(self, move: BoardMove) -> bool:
-        if (self.ismovable_rook(move) or 
-            self.ismovable_bishop(move)):
-            return True
-        return False
+        return(self.ismovable_rook(move) or 
+               self.ismovable_bishop(move))
 
     def ismovable_king(self, move: BoardMove) -> bool:
         file1, rank1, file2, rank2 = move
