@@ -37,9 +37,10 @@ class Position:
     def get_highlights(self, square: BoardSquare) -> list[BoardSquare]:
         "Returns a list of square to which the piece can move"
         squares = []
-        for x, y in product(range(8), repeat=2): #redo
-            if self.is_move_possible(BoardMove(square, BoardSquare(x, y))):
-                squares.append(BoardSquare(x, y))
+        for x, y in product(range(8), repeat=2):
+            target_square = BoardSquare(x, y)
+            if self.is_move_possible(BoardMove(square, target_square)):
+                squares.append(target_square)
         return squares
     
     def get_FEN(self) -> ForsythEdwardsNotation:
@@ -184,7 +185,7 @@ class Position:
     def is_move_possible(self, move: BoardMove, available_squares: list[BoardSquare] | None = None) -> bool:
         "Returns True if the move can be made, False otherwise"
         if available_squares != None:
-            return (move.target_square in available_squares)
+            return(move.target_square in available_squares)
         if not(move.start_square.isinrange() and move.target_square.isinrange()):
             return False
         piece = self.get_piece(move.start_square)
@@ -195,8 +196,8 @@ class Position:
         if (self.get_piece(move.target_square) != '' and 
             self.white_move == self.get_piece(move.target_square).isupper()):
             return False
-        return (self.ismovable(move, piece) and 
-            not(self.is_moved_into_check(move)))
+        return(self.ismovable(move, piece) and 
+           not(self.is_moved_into_check(move)))
     
     def ispromotion(self, rank2: int, piece: str) -> bool:
         return(rank2 == 0 and piece == 'P' or 
@@ -427,8 +428,8 @@ class Position:
             king = 'k'
         else:
             king = 'K'
-        for y in range(max(0, square.rank-1), min(square.rank + 1, 7) + 1):
-            for x in range(max(0, square.file-1), min(square.file + 1, 7) + 1):
-                if self.get_piece(BoardSquare(x, y)) == king:
-                    return True
+        for x, y in product(range(max(0, square.rank-1), min(square.rank + 1, 7) + 1), 
+                            range(max(0, square.file-1), min(square.file + 1, 7) + 1)):
+            if self.get_piece(BoardSquare(x, y)) == king:
+                return True
         return False
