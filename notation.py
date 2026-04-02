@@ -84,7 +84,7 @@ class ForsythEdwardsNotation:
                 position.append(c)
         return(position)
     
-    def get_is_white_to_move(self) -> bool:
+    def get_white_move(self) -> bool:
         return self.list[1] == 'w'
     
     def get_castles(self) -> dict[str, bool]:

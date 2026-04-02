@@ -10,7 +10,7 @@ class Position:
     def __init__(self, init_position: ForsythEdwardsNotation): #add PortableGameNotation
         self.history = [init_position]
         self.pos_array = init_position.get_position_array()
-        self.is_white_to_move = init_position.get_is_white_to_move()
+        self.white_move = init_position.get_white_move()
         self.castles = init_position.get_castles()
         self.en_passant = init_position.get_en_passant()
         self.halfmove_clock = init_position.get_halfmove_clock()
@@ -54,7 +54,7 @@ class Position:
                     notation += '1'
             else:
                 notation += piece
-        if self.is_white_to_move:
+        if self.white_move:
             notation += ' w '
         else:
             notation += ' b '
@@ -71,7 +71,7 @@ class Position:
         return ForsythEdwardsNotation(FEN = notation[1:])
 
     def ischecked(self) -> bool:
-        if self.is_white_to_move:
+        if self.white_move:
             return self.isattacked(self.get_location('K'))
         else:
             return self.isattacked(self.get_location('k'))
@@ -87,7 +87,7 @@ class Position:
         return True
 
     def ischeckmate(self) -> bool:
-        if self.is_white_to_move:
+        if self.white_move:
             king_square = self.get_location('K')
         else:
             king_square = self.get_location('k')
@@ -114,10 +114,10 @@ class Position:
             self.halfmove_clock = 0
         else:
             self.halfmove_clock += 1
-        if self.is_white_to_move == False:
+        if self.white_move == False:
             self.fullmove_number += 1
         self.raw_move(move, promote_to)
-        self.is_white_to_move = not self.is_white_to_move
+        self.white_move = not self.white_move
         return True
     
     def raw_move(self, move: BoardMove, promote_to: str | None = None) -> None:
@@ -190,10 +190,10 @@ class Position:
         piece = self.get_piece(move.start_square)
         if piece == '':
             return False
-        if piece.isupper() != self.is_white_to_move:
+        if piece.isupper() != self.white_move:
             return False
         if (self.get_piece(move.target_square) != '' and 
-            self.is_white_to_move == self.get_piece(move.target_square).isupper()):
+            self.white_move == self.get_piece(move.target_square).isupper()):
             return False
         return (self.ismovable(move, piece) and 
             not(self.is_moved_into_check(move)))
@@ -292,14 +292,14 @@ class Position:
             return True
         if self.isattacked(move.start_square):
             return False
-        if self.is_white_to_move and rank2 == 7:
+        if self.white_move and rank2 == 7:
             if (file2 == 2 and self.castles['Q'] and self.get_rank(7)[:5] == ['R', '', '', '', 'K'] and 
                 not(self.isattacked(BoardSquare(3, 7)))): 
                 return True
             if (file2 == 6 and self.castles['K'] and self.get_rank(7)[4:] == ['K', '', '', 'R'] and 
                 not(self.isattacked(BoardSquare(5, 7)))): 
                 return True
-        elif not(self.is_white_to_move) and rank2 == 0:
+        elif not(self.white_move) and rank2 == 0:
             if (file2 == 2 and self.castles['q'] and self.get_rank(0)[:5] == ['r', '', '', '', 'k'] and 
                 not(self.isattacked(BoardSquare(3, 0)))): 
                 return True
@@ -317,7 +317,7 @@ class Position:
                 self.isattacked_by_king(square))
     
     def isattacked_by_pawn(self, square: BoardSquare) -> bool:
-        if self.is_white_to_move:
+        if self.white_move:
             return self.isattacked_by_bpawn(square)
         else:
             return self.isattacked_by_wpawn(square)
@@ -341,7 +341,7 @@ class Position:
         return False
 
     def isattacked_by_knight(self, square: BoardSquare) -> bool:
-        if self.is_white_to_move:
+        if self.white_move:
             knight = 'n'
         else:
             knight = 'N'
@@ -353,7 +353,7 @@ class Position:
         return False
 
     def isattacked_by_bishop_queen(self, square: BoardSquare) -> bool:
-        if self.is_white_to_move:
+        if self.white_move:
             bishop = 'b'
             queen = 'q'
         else:
@@ -390,7 +390,7 @@ class Position:
         return False
 
     def isattacked_by_rook_queen(self, square: BoardSquare) -> bool:
-        if self.is_white_to_move:
+        if self.white_move:
             rook = 'r'
             queen = 'q'
         else:
@@ -423,7 +423,7 @@ class Position:
         return False
 
     def isattacked_by_king(self, square: BoardSquare) -> bool:
-        if self.is_white_to_move:
+        if self.white_move:
             king = 'k'
         else:
             king = 'K'
