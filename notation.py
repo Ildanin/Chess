@@ -36,6 +36,10 @@ class BoardMove:
     def __init__(self, start_square: BoardSquare, target_square: BoardSquare) -> None:
         self.start_square = start_square
         self.target_square = target_square
+        self.file1 = start_square.file
+        self.rank1 = start_square.rank
+        self.file2 = target_square.file
+        self.rank2 = target_square.rank
         self.dx = None
         self.dy = None
     
