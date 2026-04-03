@@ -2,7 +2,8 @@ import pygame as pg
 from itertools import product
 from config import *
 from positionClass import Position
-from notation import ForsythEdwardsNotation, BoardSquare, BoardMove
+from notation.pgn import ForsythEdwardsNotation
+from notation.square import BoardSquare, BoardMove
 import os
 
 

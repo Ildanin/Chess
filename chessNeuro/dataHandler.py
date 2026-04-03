@@ -1,4 +1,4 @@
-from notation import PortableGameNotation
+from notation.pgn import PortableGameNotation
 from config import UNTRANSFORMED
 
 def file_transform(input_filename: str, output_filename: str | None = None) -> str:
