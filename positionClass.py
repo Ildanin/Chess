@@ -8,7 +8,7 @@ QUEEN_ROOKS_FILE = 0
 KING_ROOKS_FILE = 7
 
 class Position:
-    def __init__(self, init_position: ForsythEdwardsNotation): #add PortableGameNotation
+    def __init__(self, init_position: ForsythEdwardsNotation):
         self.history = [init_position]
         self.pos_array = init_position.get_position_array()
         self.white_move = init_position.get_white_move()
@@ -19,6 +19,9 @@ class Position:
     
     def __iter__(self):
         return iter(self.pos_array)
+
+    def flush(self) -> None:
+        self.__init__(self.history[0])
 
     def get_piece(self, square: BoardSquare) -> str:
         "Returns the piece given the square"
