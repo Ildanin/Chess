@@ -1,7 +1,7 @@
 from network import Network
 import numpy as np
 from config import INFO, ACTIVATOR, NORMALIZER, FACTOR_RANGE, BIAS_RANGE, ALPHA, CYCLES
-from dataHandler import data_load
+from chessNeuro.dataHandler import data_load
 from notation.pgn import PortableGameNotation
 from positionClass import Position
 

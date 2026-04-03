@@ -1,5 +1,5 @@
 from math import copysign
-from notation.pgn import ForsythEdwardsNotation
+from notation.fen import ForsythEdwardsNotation
 from notation.square import BoardSquare, BoardMove
 from itertools import product
 
