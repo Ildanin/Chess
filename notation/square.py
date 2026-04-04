@@ -48,6 +48,13 @@ class BoardMove:
     def __iter__(self) -> Iterator[int]:
         return iter((*self.start_square, *self.target_square))
     
+    def __eq__(self, move: object) -> bool:
+        if move == None:
+            return False
+        elif type(move) != BoardMove:
+            raise ValueError(f"BoardSquare object cannot be compared with {type(move)} object")
+        return (self.start_square == move.start_square and self.target_square == move.target_square)
+    
     def get_dx(self) -> int:
         if self.dx == None:
             self.dx = self.target_square.file - self.start_square.file
