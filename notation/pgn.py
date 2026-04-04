@@ -3,7 +3,10 @@ from notation.square import BoardMove
 from positionClass import Position
 
 #pgn notation
-#1. e4 e6 2. d4 b6 3. a3 Bb7 4. Nc3 Nh6 5. Bxh6 gxh6 6. Be2 Qg5 7. Bg4 h5 8. Nf3 Qg6 9. Nh4 Qg5 10. Bxh5 Qxh4 11. Qf3 Kd8 12. Qxf7 Nc6 13. Qe8# 1-0
+#Pe4 pe6 Pd4 pb6 Pa3 Bb7 Nc3 Nh6 Bh6 gh6 Be2 Qg5 Bg4 ph5 Nf3 Qg6 Nh4 Qg5 Bh5 Qh4 Qf3 Kd8 Qf7 Nc6 Qe8
+#Pe4 pc5 Nc3 pd6 Pd4 cd4 Nb5 pe5 Pc3 dc3 Nc3 Nc6 Pf4 Nf6 Nf3 Be7 fe5 de5 Bg5 Bg4 Qb3 O-O Rd1 Qa5 Bd2 Qc7 Nd5 Nd5 ed5 Nd4 Nd4 Bd1 Nb5 Bb3 Nc7 Ba2 Na8 Ra8 Bd3 Bd5 O-O Bc5 Kh1 pg6 Bg5 pf5 Rd1 pe4 Bb5 Bc6 Bc6 bc6 Rc1 Bb6 Rc6 Re8 Pg3 pe3 Kg2 pe2 Bd2 e1=Q Be1 Re1 Kh3 Re2 Rc8 Kg7 Rb8 Rb2 Rb7 Kh6 Pg4 Rb3 Kg2 fg4 Kf1 Rb2
+#Pc4 pf5 Nc3 Nf6 Pg3 pd6 Bg2 pg6 Pe4 fe4 Ne4 Nbd7 Ng5 Ne5 Pb3 ph6 Pd4 Nc6 Pd5 Nb4 Pa3 hg5 ab4 pg4 Ne2 Bf5 Nd4 Qd7 O-O Bg7 Re1 Rh5 Ra2 O-O-O Ra7 Kb8 Ra4 Rdh8 Bh6 Rh8h6 Qa1 Qa4 Qa4 Rh2 Nc6 bc6 dc6
+
 class PortableGameNotation:
     def __init__(self, PGN: str, init_position: ForsythEdwardsNotation = ForsythEdwardsNotation()) -> None:
         self.string = PGN
