@@ -15,9 +15,11 @@ class BoardSquare:
     def __eq__(self, square: object) -> bool:
         if square == None:
             return False
+        elif type(square) == tuple:
+            return(self.file == square[0] and self.rank == square[1])
         elif type(square) != BoardSquare:
             raise ValueError(f"BoardSquare object cannot be compared with {type(square)} object")
-        return (self.file == square.file and self.rank == square.rank)
+        return(self.file == square.file and self.rank == square.rank)
 
     def isinrange(self, lower_bound: int = 0, upper_bound: int = 8) -> bool:
         return(lower_bound <= self.file < upper_bound and 
@@ -53,7 +55,7 @@ class BoardMove:
             return False
         elif type(move) != BoardMove:
             raise ValueError(f"BoardSquare object cannot be compared with {type(move)} object")
-        return (self.start_square == move.start_square and self.target_square == move.target_square)
+        return(self.start_square == move.start_square and self.target_square == move.target_square)
     
     def get_dx(self) -> int:
         if self.dx == None:
