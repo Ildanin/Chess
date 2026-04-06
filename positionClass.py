@@ -306,8 +306,8 @@ class Position:
                 return True
         return False
     
-    "'isatacked' functions return True if the given square is attacked by an enemy piece, False otherwise"
     def isattacked(self, square: BoardSquare) -> bool: #rework
+        "Returns True if the given square is attacked by an enemy piece, False otherwise"
         return (self.isattacked_by_pawn(square) or 
                 self.isattacked_by_knight(square) or 
                 self.isattacked_by_bishop_queen(square) or 
