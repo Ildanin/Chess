@@ -112,21 +112,11 @@ class Position:
                 return False
         return True
     
-    def get_possible_moves(self) -> list[BoardMove]: #rework
-        moves = []
+    def get_possible_moves(self) -> Generator[BoardMove]:
         for x, y in product(range(8), repeat=2):
-            target_square = BoardSquare(x, y)
-            for start_square in self.getcandidates_all(target_square):
-                moves.append(BoardMove(start_square, target_square))
-        return moves
-    
-    def get_possible_moves_old(self) -> list[BoardMove]: #rework
-        moves = []
-        for x1, y1, x2, y2 in product(range(8), repeat=4):
-            move = BoardMove(BoardSquare(x1, y1), BoardSquare(y2, x2))
-            if self.is_move_possible(move) == True:
-                moves.append(move)
-        return moves
+            start_square = BoardSquare(x, y)
+            for target_square in self.get_highlights(start_square):
+                yield BoardMove(start_square, target_square)
     
     def move(self, move: BoardMove, promote_to: str | None = None, available_squares: list[BoardSquare] | None = None) -> bool:
         "Moves the piece if it is posible. Returns True if moved successfully, False otherwise"
