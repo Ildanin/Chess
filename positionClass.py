@@ -42,19 +42,17 @@ class Position:
         ind = self.pos_array.index(piece)
         return BoardSquare(ind%8, ind//8)
     
-    def get_highlights(self, square: BoardSquare) -> list[BoardSquare]: #rework
+    def get_highlights(self, start_square: BoardSquare) -> Generator[BoardSquare]:
         "Returns a list of square to which the piece can move"
-        piece = self.get_piece(square)
+        piece = self.get_piece(start_square)
         if piece.isupper() != self.white_move:
-            return []
-        highlights = []
-        for target_square in self.getsquares(square, piece):
+            return
+        for target_square in self.getsquares(start_square, piece):
             if (self.get_piece(target_square) != '' and 
                 self.white_move == self.get_piece(target_square).isupper()):
                 continue
-            if not(self.is_moved_into_check(BoardMove(square, target_square))):
-                highlights.append(target_square)
-        return highlights
+            if not(self.is_moved_into_check(BoardMove(start_square, target_square))):
+                yield target_square
     
     def get_FEN(self) -> ForsythEdwardsNotation:
         notation = ''

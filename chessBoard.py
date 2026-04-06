@@ -94,7 +94,7 @@ class ChessBoard:
     def pick(self, square: BoardSquare) -> None:
         self.prev_square = square
         if self.higlight_moves:
-            self.higlighted_squares = self.position.get_highlights(square)
+            self.higlighted_squares = list(self.position.get_highlights(square))
 
     def unpick(self) -> None:
         self.prev_square = None
