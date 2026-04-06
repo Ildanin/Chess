@@ -505,11 +505,11 @@ class Position:
             yield target_square
         if start_square.file != 0:
             target_square = start_square.shift(-1, -1)
-            if self.get_piece(target_square) != '':
+            if self.get_piece(target_square) != '' or target_square == self.en_passant:
                 yield target_square
         if start_square.file != 7:
             target_square = start_square.shift(1, -1)
-            if self.get_piece(target_square) != '':
+            if self.get_piece(target_square) != '' or target_square == self.en_passant:
                 yield target_square
         if start_square.rank != 6:
             return
@@ -523,11 +523,11 @@ class Position:
             yield target_square
         if start_square.file != 0:
             target_square = start_square.shift(-1, 1)
-            if self.get_piece(target_square) != '':
+            if self.get_piece(target_square) != '' or target_square == self.en_passant:
                 yield target_square
         if start_square.file != 7:
             target_square = start_square.shift(1, 1)
-            if self.get_piece(target_square) != '':
+            if self.get_piece(target_square) != '' or target_square == self.en_passant:
                 yield target_square
         if start_square.rank != 1:
             return
