@@ -443,22 +443,6 @@ class Position:
             case 'K' | 'k': return self.getcandidates_king(square, piece)
             case _: return []
     
-    def getcandidates_all(self, square: BoardSquare) -> list[BoardSquare]:
-        if self.white_move:
-            return(self.getcandidates_wpawn(square) + 
-                   self.getcandidates_knight(square, 'N') + 
-                   self.getcandidates_bishop(square, 'B') + 
-                   self.getcandidates_rook(square, 'R') + 
-                   self.getcandidates_queen(square, 'Q') + 
-                   self.getcandidates_king(square, 'K'))
-        else:
-            return(self.getcandidates_bpawn(square) + 
-                   self.getcandidates_knight(square, 'n') + 
-                   self.getcandidates_bishop(square, 'b') + 
-                   self.getcandidates_rook(square, 'r') + 
-                   self.getcandidates_queen(square, 'q') + 
-                   self.getcandidates_king(square, 'k'))
-    
     def getcandidates_wpawn(self, square: BoardSquare) -> list[BoardSquare]:
         if square.rank == 7:
             return []
