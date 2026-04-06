@@ -90,26 +90,20 @@ class Position:
         else:
             return self.isattacked(self.get_location('k'))
     
-    def isdraw(self) -> bool: #rework
+    def isdraw(self) -> bool:
         if self.ischecked():
             return False
         if self.pos_array.count('') == 62:
             return True
-        for x1, y1, x2, y2 in product(range(8), repeat=4):
-            if self.is_move_possible(BoardMove(BoardSquare(x1, y1), BoardSquare(y2, x2))) == True:
-                return False
+        if any(self.get_possible_moves()):
+            return False
         return True
     
-    def ischeckmate(self) -> bool: #rework
-        if self.white_move:
-            king_square = self.get_location('K')
-        else:
-            king_square = self.get_location('k')
-        if not self.isattacked(king_square):
+    def ischeckmate(self) -> bool:
+        if not self.ischecked():
             return False
-        for x1, y1, x2, y2 in product(range(8), repeat=4):
-            if self.is_move_possible(BoardMove(BoardSquare(x1, y1), BoardSquare(y2, x2))) == True:
-                return False
+        if any(self.get_possible_moves()):
+            return False
         return True
     
     def get_possible_moves(self) -> Generator[BoardMove]:
