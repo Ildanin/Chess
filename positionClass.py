@@ -42,7 +42,7 @@ class Position:
         ind = self.pos_array.index(piece)
         return BoardSquare(ind%8, ind//8)
     
-    def get_highlights(self, start_square: BoardSquare) -> Generator[BoardSquare]:
+    def get_legal_squares(self, start_square: BoardSquare) -> Generator[BoardSquare]:
         "Returns a list of square to which the piece can move"
         piece = self.get_piece(start_square)
         if piece.isupper() != self.white_move:
@@ -107,7 +107,7 @@ class Position:
     def get_possible_moves(self) -> Generator[BoardMove]:
         for x, y in product(range(8), repeat=2):
             start_square = BoardSquare(x, y)
-            for target_square in self.get_highlights(start_square):
+            for target_square in self.get_legal_squares(start_square):
                 yield BoardMove(start_square, target_square)
     
     def move(self, move: BoardMove, promote_to: str | None = None, available_squares: list[BoardSquare] | None = None) -> bool:
