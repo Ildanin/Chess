@@ -20,37 +20,50 @@ class Position:
         self.en_passant = init_position.get_en_passant()
         self.halfmove_clock = init_position.get_halfmove_clock()
         self.fullmove_number = init_position.get_fullmove_number()
-
+    
     def __iter__(self):
         return iter(self.pos_array)
-
+    
     def flush(self) -> None:
         self.__init__(self.history[0])
-
+    
     def get_piece(self, square: BoardSquare) -> str:
         "Returns the piece given the square"
         return self.pos_array[square.id]
-
+    
     def get_rank(self, rank: int) -> list[str]:
         return self.pos_array[8*rank : 8*(rank+1)]
-
+    
     def set_piece(self, square: BoardSquare, piece: str = '') -> None:
         self.pos_array[square.id] = piece
-
+    
     def get_location(self, piece: str) -> BoardSquare:
         "Return first occurring square of the piece"
         ind = self.pos_array.index(piece)
         return BoardSquare(ind%8, ind//8)
-
+    
     def get_highlights(self, square: BoardSquare) -> list[BoardSquare]: #rework
         "Returns a list of square to which the piece can move"
+        piece = self.get_piece(square)
+        if piece.isupper() != self.white_move:
+            return []
+        highlights = []
+        for target_square in self.getsquares(square, piece):
+            if (self.get_piece(target_square) != '' and 
+                self.white_move == self.get_piece(target_square).isupper()):
+                continue
+            if not(self.is_moved_into_check(BoardMove(square, target_square))):
+                highlights.append(target_square)
+        return highlights
+    
+    def get_highlights_old(self, square: BoardSquare) -> list[BoardSquare]:
         squares = []
         for x, y in product(range(8), repeat=2):
             target_square = BoardSquare(x, y)
             if self.is_move_possible(BoardMove(square, target_square)):
                 squares.append(target_square)
         return squares
-
+    
     def get_FEN(self) -> ForsythEdwardsNotation:
         notation = ''
         for i, piece in enumerate(self.pos_array):
@@ -78,13 +91,13 @@ class Position:
             notation += ' - '
         notation += f'{self.halfmove_clock} {self.fullmove_number}'
         return ForsythEdwardsNotation(FEN = notation[1:])
-
+    
     def ischecked(self) -> bool:
         if self.white_move:
             return self.isattacked(self.get_location('K'))
         else:
             return self.isattacked(self.get_location('k'))
-
+    
     def isdraw(self) -> bool: #rework
         if self.ischecked():
             return False
@@ -94,7 +107,7 @@ class Position:
             if self.is_move_possible(BoardMove(BoardSquare(x1, y1), BoardSquare(y2, x2))) == True:
                 return False
         return True
-
+    
     def ischeckmate(self) -> bool: #rework
         if self.white_move:
             king_square = self.get_location('K')
@@ -106,7 +119,7 @@ class Position:
             if self.is_move_possible(BoardMove(BoardSquare(x1, y1), BoardSquare(y2, x2))) == True:
                 return False
         return True
-
+    
     def get_possible_moves(self) -> list[BoardMove]: #rework
         moves = []
         for x, y in product(range(8), repeat=2):
@@ -122,7 +135,7 @@ class Position:
             if self.is_move_possible(move) == True:
                 moves.append(move)
         return moves
-
+    
     def move(self, move: BoardMove, promote_to: str | None = None, available_squares: list[BoardSquare] | None = None) -> bool:
         "Moves the piece if it is posible. Returns True if moved successfully, False otherwise"
         if not(self.is_move_possible(move, available_squares)):
@@ -136,7 +149,7 @@ class Position:
         self.raw_move(move, promote_to)
         self.white_move = not self.white_move
         return True
-
+    
     def raw_move(self, move: BoardMove, promote_to: str | None = None) -> None:
         "Makes a move without any checks and does not pass the move"
         piece = self.get_piece(move.start_square)
@@ -145,7 +158,7 @@ class Position:
         self.handle_en_passant(move, piece)
         self.handle_castling(move.file1, move.file2, piece)
         self.handle_promotion(move.target_square, promote_to)
-
+    
     def handle_en_passant(self, move: BoardMove, piece: str) -> None:
         if piece == 'P':
             if move.target_square == self.en_passant:
@@ -160,7 +173,7 @@ class Position:
                 self.en_passant = BoardSquare(move.file1, 2)
                 return None
         self.en_passant = None
-
+    
     def handle_castling(self, file1: int, file2: int, piece: str) -> None:
         if piece == 'R':
             if file1 == QUEEN_ROOKS_FILE:
@@ -192,11 +205,11 @@ class Position:
                 elif file2 == 6:
                     self.set_piece(BoardSquare(5, 0), 'r')
                     self.set_piece(BoardSquare(7, 0), '')
-
+    
     def handle_promotion(self, square: BoardSquare, promote_to: str | None) -> None:
         if promote_to != None:
             self.set_piece(square, promote_to)
-
+    
     def is_move_possible(self, move: BoardMove, available_squares: list[BoardSquare] | None = None) -> bool:
         "Returns True if the move can be made, False otherwise"
         if available_squares != None:
@@ -213,11 +226,11 @@ class Position:
             return False
         return(self.ismovable(move, piece) and 
            not(self.is_moved_into_check(move)))
-
+    
     def ispromotion(self, rank2: int, piece: str) -> bool:
         return(rank2 == 0 and piece == 'P' or 
                rank2 == 7 and piece == 'p')
-
+    
     def is_moved_into_check(self, move: BoardMove) -> bool:
         "Returns True if the king will be in check after the given move, False otherwise"
         saved_states = self.pos_array.copy(), self.castles.copy(), self.en_passant #saves the state of the game
@@ -225,7 +238,7 @@ class Position:
         ischecked = self.ischecked()
         self.pos_array, self.castles, self.en_passant = saved_states #returns position to its initial state
         return ischecked
-
+    
     "'ismovable' functions return True if the piece can make the given move, False otherwise"
     def ismovable(self, move: BoardMove, piece: str) -> bool:
         match piece:
@@ -237,7 +250,7 @@ class Position:
             case 'Q' | 'q': return self.ismovable_queen(move)
             case 'K' | 'k': return self.ismovable_king(move)
             case _: return False
-
+    
     def ismovable_wpawn(self, move: BoardMove) -> bool:
         if move.get_dx() == 0 and self.get_piece(move.target_square) == '':
             if move.get_dy() == -1: 
@@ -250,7 +263,7 @@ class Position:
             if move.target_square == self.en_passant: 
                 return True
         return False
-
+    
     def ismovable_bpawn(self, move: BoardMove) -> bool:
         if move.get_dx() == 0 and self.get_piece(move.target_square) == '':
             if move.get_dy() == 1: 
@@ -263,11 +276,11 @@ class Position:
             if move.target_square == self.en_passant: 
                 return True
         return False
-
+    
     def ismovable_knight(self, move: BoardMove) -> bool:
         return((abs(move.get_dx()) == 1 and abs(move.get_dy()) == 2) or 
                (abs(move.get_dy()) == 1 and abs(move.get_dx()) == 2))
-
+    
     def ismovable_bishop(self, move: BoardMove) -> bool:
         if abs(move.get_dx()) != abs(move.get_dy()): 
             return False
@@ -278,7 +291,7 @@ class Position:
             if self.get_piece(BoardSquare(x, y)) != '': 
                 return False
         return True
-
+    
     def ismovable_rook(self, move: BoardMove) -> bool:
         if move.get_dx() == 0:
             y_direction = int(copysign(1, move.get_dy()))
@@ -293,11 +306,11 @@ class Position:
                     return False
             return True
         return False
-
+    
     def ismovable_queen(self, move: BoardMove) -> bool:
         return(self.ismovable_rook(move) or 
                self.ismovable_bishop(move))
-
+    
     def ismovable_king(self, move: BoardMove) -> bool:
         if (-1 <= move.get_dx() <= 1) and (-1 <= move.get_dy() <= 1): 
             return True
@@ -318,7 +331,7 @@ class Position:
                 not(self.isattacked(BoardSquare(5, BLACK_BACK_RANK)))): 
                 return True
         return False
-
+    
     "'isatacked' functions return True if the given square is attacked by an enemy piece, False otherwise"
     def isattacked(self, square: BoardSquare) -> bool: #rework
         return (self.isattacked_by_pawn(square) or 
@@ -326,13 +339,13 @@ class Position:
                 self.isattacked_by_bishop_queen(square) or 
                 self.isattacked_by_rook_queen(square) or 
                 self.isattacked_by_king(square))
-
+    
     def isattacked_by_pawn(self, square: BoardSquare) -> bool:
         if self.white_move:
             return self.isattacked_by_bpawn(square)
         else:
             return self.isattacked_by_wpawn(square)
-
+    
     def isattacked_by_wpawn(self, square: BoardSquare) -> bool:
         if square.rank == 7:
             return False
@@ -341,7 +354,7 @@ class Position:
         if square.file < 7 and self.get_piece(square.shift(1, 1)) == 'P':
             return True
         return False
-
+    
     def isattacked_by_bpawn(self, square: BoardSquare) -> bool:
         if square.rank == 0:
             return False
@@ -350,7 +363,7 @@ class Position:
         if square.file < 7 and self.get_piece(square.shift(1, -1)) == 'p':
             return True
         return False
-
+    
     def isattacked_by_knight(self, square: BoardSquare) -> bool:
         if self.white_move:
             knight = 'n'
@@ -362,7 +375,7 @@ class Position:
                 self.get_piece(knight_square) == knight):
                 return True
         return False
-
+    
     def isattacked_by_bishop_queen(self, square: BoardSquare) -> bool:
         if self.white_move:
             bishop = 'b'
@@ -399,7 +412,7 @@ class Position:
             if piece != '':
                 break
         return False
-
+    
     def isattacked_by_rook_queen(self, square: BoardSquare) -> bool:
         if self.white_move:
             rook = 'r'
@@ -432,7 +445,7 @@ class Position:
             if piece != '':
                 break
         return False
-
+    
     def isattacked_by_king(self, square: BoardSquare) -> bool:
         if self.white_move:
             king = 'k'
@@ -443,7 +456,7 @@ class Position:
             if self.get_piece(BoardSquare(x, y)) == king:
                 return True
         return False
-
+    
     def getcandidates(self, square: BoardSquare, piece: str) -> list[BoardSquare]: #rework
         "Returns the list of squares from wich the piece can be moved to the given square"
         match piece:
@@ -455,7 +468,7 @@ class Position:
             case 'Q' | 'q': return self.getcandidates_queen(square, piece)
             case 'K' | 'k': return self.getcandidates_king(square, piece)
             case _: return []
-
+    
     def getcandidates_all(self, square: BoardSquare) -> list[BoardSquare]:
         if self.white_move:
             return(self.getcandidates_wpawn(square) + 
@@ -471,7 +484,7 @@ class Position:
                    self.getcandidates_rook(square, 'r') + 
                    self.getcandidates_queen(square, 'q') + 
                    self.getcandidates_king(square, 'k'))
-
+    
     def getcandidates_wpawn(self, square: BoardSquare) -> list[BoardSquare]:
         if square.rank == 7:
             return []
@@ -483,7 +496,7 @@ class Position:
         if square.file < 7 and self.get_piece(start_square) == 'P':
             candidates.append(start_square)
         return candidates
-
+    
     def getcandidates_bpawn(self, square: BoardSquare) -> list[BoardSquare]:
         if square.rank == 0:
             return []
@@ -495,7 +508,7 @@ class Position:
         if square.file < 7 and self.get_piece(start_square) == 'p':
             candidates.append(start_square)
         return candidates
-
+    
     def getcandidates_knight(self, square: BoardSquare, knight: str) -> list[BoardSquare]:
         candidates = []
         for dx, dy in product([-2, -1, 1, 2], repeat=2):
@@ -504,7 +517,7 @@ class Position:
                 self.get_piece(knight_square) == knight):
                 candidates.append(knight_square)
         return candidates
-
+    
     def getcandidates_bishop(self, square: BoardSquare, bishop: str) -> list[BoardSquare]:
         candidates = []
         for x, y in zip(range(square.file-1, -1, -1), 
@@ -540,7 +553,7 @@ class Position:
             if piece != '':
                 break
         return candidates
-
+    
     def getcandidates_rook(self, square: BoardSquare, rook: str) -> list[BoardSquare]:
         candidates = []
         for y in range(square.rank+1, 8, 1):
@@ -572,10 +585,10 @@ class Position:
             if piece != '':
                 break
         return candidates
-
+    
     def getcandidates_queen(self, square: BoardSquare, queen: str) -> list[BoardSquare]:
         return self.getcandidates_bishop(square, queen) + self.getcandidates_rook(square, queen)
-
+    
     def getcandidates_king(self, square: BoardSquare, king: str) -> list[BoardSquare]:
         candidates = []
         for x, y in product(range(max(0, square.rank-1), min(square.rank + 1, 7) + 1), 
@@ -584,7 +597,19 @@ class Position:
             if self.get_piece(start_square) == king:
                 candidates.append(start_square)
         return candidates
-    
+
+    def getsquares(self, start_square: BoardSquare, piece: str) -> Generator[BoardSquare]:
+        match piece:
+            case 'P':       return self.getsquares_wpawn(start_square)
+            case 'p':       return self.getsquares_bpawn(start_square)
+            case 'N' | 'n': return self.getsquares_knight(start_square)
+            case 'B' | 'b': return self.getsquares_bishop(start_square)
+            case 'R' | 'r': return self.getsquares_rook(start_square)
+            case 'Q' | 'q': return self.getsquares_queen(start_square)
+            case 'K':       return self.getsquares_wking(start_square)
+            case 'k':       return self.getsquares_bking(start_square)
+            case _: return(i for i in [])
+
     def getsquares_wpawn(self, start_square: BoardSquare) -> Generator[BoardSquare]:
         target_square = start_square.shift(0, -1)
         if self.get_piece(target_square) == '':
@@ -602,7 +627,7 @@ class Position:
         target_square = start_square.shift(0, -2)
         if self.get_piece(target_square) == '':
             yield target_square
-
+    
     def getsquares_bpawn(self, start_square: BoardSquare) -> Generator[BoardSquare]:
         target_square = start_square.shift(0, 1)
         if self.get_piece(target_square) == '':
@@ -620,13 +645,13 @@ class Position:
         target_square = start_square.shift(0, 2)
         if self.get_piece(target_square) == '':
             yield target_square
-
+    
     def getsquares_knight(self, start_square: BoardSquare) -> Generator[BoardSquare]:
         for dx, dy in product([-2, -1, 1, 2], repeat=2):
             target_square = start_square.shift(dx, dy)
             if abs(dx) != abs(dy) and target_square.isinrange():
                 yield target_square
-
+    
     def getsquares_bishop(self, start_square: BoardSquare) -> Generator[BoardSquare]:
         for x, y in zip(range(start_square.file-1, -1, -1), 
                         range(start_square.rank-1, -1, -1)):
@@ -652,7 +677,7 @@ class Position:
             yield target_square
             if self.get_piece(target_square) != '':
                 break
-
+    
     def getsquares_rook(self, start_square: BoardSquare) -> Generator[BoardSquare]:
         for y in range(start_square.rank+1, 8, 1):
             target_square = BoardSquare(start_square.file, y)
@@ -680,10 +705,10 @@ class Position:
             yield target_square
         for target_square in self.getsquares_rook(start_square):
             yield target_square
-
+    
     def getsquares_king(self, start_square: BoardSquare) -> Generator[BoardSquare]:
-        for x, y in product(range(max(0, start_square.rank-1), min(start_square.rank + 1, 7) + 1), 
-                            range(max(0, start_square.file-1), min(start_square.file + 1, 7) + 1)):
+        for x, y in product(range(max(0, start_square.file-1), min(start_square.file + 1, 7) + 1), 
+                            range(max(0, start_square.rank-1), min(start_square.rank + 1, 7) + 1)):
             target_square = BoardSquare(x, y)
             if target_square != start_square:
                 yield target_square
@@ -691,23 +716,23 @@ class Position:
     def getsquares_wking(self, start_square: BoardSquare) -> Generator[BoardSquare]:
         for target_square in self.getsquares_king(start_square):
             yield target_square
-        if start_square == (KINGS_FILE, WHITE_BACK_RANK):
+        if start_square != (KINGS_FILE, WHITE_BACK_RANK):
             return
         if (self.castles['Q'] and self.get_rank(WHITE_BACK_RANK)[:5] == ['R', '', '', '', 'K'] and 
-            not(self.isattacked(BoardSquare(3, WHITE_BACK_RANK)))): 
+            not(self.isattacked(BoardSquare(3, WHITE_BACK_RANK)))):
             yield BoardSquare(2, WHITE_BACK_RANK)
         if (self.castles['K'] and self.get_rank(7)[4:] == ['K', '', '', 'R'] and 
-            not(self.isattacked(BoardSquare(5, WHITE_BACK_RANK)))): 
+            not(self.isattacked(BoardSquare(5, WHITE_BACK_RANK)))):
             yield BoardSquare(6, WHITE_BACK_RANK)
-
+    
     def getsquares_bking(self, start_square: BoardSquare) -> Generator[BoardSquare]:
         for target_square in self.getsquares_king(start_square):
             yield target_square
-        if start_square == (KINGS_FILE, BLACK_BACK_RANK):
+        if start_square != (KINGS_FILE, BLACK_BACK_RANK):
             return
         if (self.castles['q'] and self.get_rank(BLACK_BACK_RANK)[:5] == ['r', '', '', '', 'k'] and 
-            not(self.isattacked(BoardSquare(3, BLACK_BACK_RANK)))): 
+            not(self.isattacked(BoardSquare(3, BLACK_BACK_RANK)))):
             yield BoardSquare(2, BLACK_BACK_RANK)
         if (self.castles['k'] and self.get_rank(BLACK_BACK_RANK)[4:] == ['k', '', '', 'r'] and 
-            not(self.isattacked(BoardSquare(5, BLACK_BACK_RANK)))): 
+            not(self.isattacked(BoardSquare(5, BLACK_BACK_RANK)))):
             yield BoardSquare(6, BLACK_BACK_RANK)
