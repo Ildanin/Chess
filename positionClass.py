@@ -65,7 +65,7 @@ class Position:
     def set_piece(self, square: BoardSquare, piece: str = '') -> None:
         self.pos_array[square.id] = piece
     
-    def get_location(self, piece: str) -> BoardSquare:
+    def locate(self, piece: str) -> BoardSquare:
         "Return first occurring square of the piece"
         ind = self.pos_array.index(piece)
         return BoardSquare(ind%8, ind//8)
@@ -90,9 +90,9 @@ class Position:
     
     def ischecked(self) -> bool:
         if self.white_move:
-            return self.isattacked(self.get_location('K'))
+            return self.isattacked(self.locate('K'))
         else:
-            return self.isattacked(self.get_location('k'))
+            return self.isattacked(self.locate('k'))
     
     def isdraw(self) -> bool:
         if self.ischecked():

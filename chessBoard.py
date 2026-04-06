@@ -114,7 +114,7 @@ class ChessBoard:
                 self.position.move(BoardMove(self.prev_square, self.promotion), ['q', 'n', 'r', 'b'][7 - square.rank], self.higlighted_squares)
             else:
                 self.position.set_piece(self.prev_square, 'p')
-        self.promotion = None        
+        self.promotion = None
     
     def draw(self) -> None: #add flip
         "Draws board with pieces to the screen"
