@@ -27,33 +27,6 @@ class Position:
     def flush(self) -> None:
         self.__init__(self.history[0])
     
-    def get_piece(self, square: BoardSquare) -> str:
-        "Returns the piece given the square"
-        return self.pos_array[square.id]
-    
-    def get_rank(self, rank: int) -> list[str]:
-        return self.pos_array[8*rank : 8*(rank+1)]
-    
-    def set_piece(self, square: BoardSquare, piece: str = '') -> None:
-        self.pos_array[square.id] = piece
-    
-    def get_location(self, piece: str) -> BoardSquare:
-        "Return first occurring square of the piece"
-        ind = self.pos_array.index(piece)
-        return BoardSquare(ind%8, ind//8)
-    
-    def get_legal_squares(self, start_square: BoardSquare) -> Generator[BoardSquare]:
-        "Returns a list of square to which the piece can move"
-        piece = self.get_piece(start_square)
-        if piece.isupper() != self.white_move:
-            return
-        for target_square in self.getsquares(start_square, piece):
-            if (self.get_piece(target_square) != '' and 
-                self.white_move == self.get_piece(target_square).isupper()):
-                continue
-            if not(self.is_moved_into_check(BoardMove(start_square, target_square))):
-                yield target_square
-    
     def get_FEN(self) -> ForsythEdwardsNotation:
         notation = ''
         for i, piece in enumerate(self.pos_array):
@@ -82,6 +55,39 @@ class Position:
         notation += f'{self.halfmove_clock} {self.fullmove_number}'
         return ForsythEdwardsNotation(FEN = notation[1:])
     
+    def get_piece(self, square: BoardSquare) -> str:
+        "Returns the piece given the square"
+        return self.pos_array[square.id]
+    
+    def get_rank(self, rank: int) -> list[str]:
+        return self.pos_array[8*rank : 8*(rank+1)]
+    
+    def set_piece(self, square: BoardSquare, piece: str = '') -> None:
+        self.pos_array[square.id] = piece
+    
+    def get_location(self, piece: str) -> BoardSquare:
+        "Return first occurring square of the piece"
+        ind = self.pos_array.index(piece)
+        return BoardSquare(ind%8, ind//8)
+    
+    def get_legal_squares(self, start_square: BoardSquare) -> Generator[BoardSquare]:
+        "Returns a list of square to which the piece can move"
+        piece = self.get_piece(start_square)
+        if piece.isupper() != self.white_move:
+            return
+        for target_square in self.getsquares(start_square, piece):
+            if (self.get_piece(target_square) != '' and 
+                self.white_move == self.get_piece(target_square).isupper()):
+                continue
+            if not(self.is_moved_into_check(BoardMove(start_square, target_square))):
+                yield target_square
+    
+    def get_possible_moves(self) -> Generator[BoardMove]:
+        for x, y in product(range(8), repeat=2):
+            start_square = BoardSquare(x, y)
+            for target_square in self.get_legal_squares(start_square):
+                yield BoardMove(start_square, target_square)
+    
     def ischecked(self) -> bool:
         if self.white_move:
             return self.isattacked(self.get_location('K'))
@@ -103,12 +109,6 @@ class Position:
         if any(self.get_possible_moves()):
             return False
         return True
-    
-    def get_possible_moves(self) -> Generator[BoardMove]:
-        for x, y in product(range(8), repeat=2):
-            start_square = BoardSquare(x, y)
-            for target_square in self.get_legal_squares(start_square):
-                yield BoardMove(start_square, target_square)
     
     def move(self, move: BoardMove, promote_to: str | None = None, available_squares: list[BoardSquare] | None = None) -> bool:
         "Moves the piece if it is posible. Returns True if moved successfully, False otherwise"
