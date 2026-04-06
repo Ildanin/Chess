@@ -591,6 +591,8 @@ class Position:
         return candidates
 
     def getsquares(self, start_square: BoardSquare, piece: str) -> Generator[BoardSquare]:
+        """Returns the squares to which the piece can move ignoring king's safety and piece colors.
+        Will return squares that are oqupied by the same color piece"""
         match piece:
             case 'P':       return self.getsquares_wpawn(start_square)
             case 'p':       return self.getsquares_bpawn(start_square)
