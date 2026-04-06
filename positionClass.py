@@ -213,8 +213,8 @@ class Position:
         self.pos_array, self.castles, self.en_passant = saved_states #returns position to its initial state
         return ischecked
     
-    "'ismovable' functions return True if the piece can make the given move, False otherwise"
     def ismovable(self, move: BoardMove, piece: str) -> bool:
+        "Return True if the piece can make the given move, False otherwise"
         match piece:
             case 'P':       return self.ismovable_wpawn(move)
             case 'p':       return self.ismovable_bpawn(move)
@@ -343,8 +343,7 @@ class Position:
         return False
     
     def isattacked_by_knight(self, square: BoardSquare, knight: str) -> bool:
-        return any(self.get_piece(attack_square) == knight 
-                   for attack_square in self.getsquares_knight(square))
+        return any(self.getcandidates_knight(square, knight))
     
     def isattacked_by_bishop_queen(self, square: BoardSquare, bishop: str, queen: str) -> bool:
         return any(self.get_piece(attack_square) == bishop or 
@@ -357,10 +356,9 @@ class Position:
                    for attack_square in self.getsquares_rook(square))
     
     def isattacked_by_king(self, square: BoardSquare, king: str) -> bool:
-        return any(self.get_piece(attack_square) == king 
-                   for attack_square in self.getsquares_king(square))
+        return any(self.getcandidates_king(square, king))
     
-    def getcandidates(self, square: BoardSquare, piece: str) -> list[BoardSquare]: #rework
+    def getcandidates(self, square: BoardSquare, piece: str) -> Generator[BoardSquare]: #rework
         "Returns the list of squares from wich the piece can be moved to the given square"
         match piece:
             case 'P':       return self.getcandidates_wpawn(square)
@@ -370,121 +368,66 @@ class Position:
             case 'R' | 'r': return self.getcandidates_rook(square, piece)
             case 'Q' | 'q': return self.getcandidates_queen(square, piece)
             case 'K' | 'k': return self.getcandidates_king(square, piece)
-            case _: return []
+            case _: return(i for i in [])
     
-    def getcandidates_wpawn(self, square: BoardSquare) -> list[BoardSquare]:
-        if square.rank == 7:
-            return []
-        candidates = []
-        start_square = square.shift(-1, 1)
-        if square.file > 0 and self.get_piece(start_square) == 'P':
-            candidates.append(start_square)
-        start_square = square.shift(1, 1)
-        if square.file < 7 and self.get_piece(start_square) == 'P':
-            candidates.append(start_square)
-        return candidates
+    def getcandidates_wpawn(self, target_square: BoardSquare) -> Generator[BoardSquare]:
+        if self.get_piece(target_square) == '':
+            start_square = target_square.shift(0, 1)
+            if self.get_piece(start_square) == 'P':
+                yield start_square
+            elif target_square.rank == 4 and self.get_piece(start_square) == '':
+                start_square = target_square.shift(0, 2)
+                if self.get_piece(start_square) == 'P':
+                    yield start_square
+        if self.get_piece(target_square) != '' or target_square == self.en_passant:
+            if target_square.file != 0:
+                start_square = target_square.shift(-1, 1)
+                if self.get_piece(start_square) == 'P':
+                    yield start_square
+            if target_square.file != 7:
+                start_square = target_square.shift(1, 1)
+                if self.get_piece(start_square) == 'P':
+                    yield start_square
     
-    def getcandidates_bpawn(self, square: BoardSquare) -> list[BoardSquare]:
-        if square.rank == 0:
-            return []
-        candidates = []
-        start_square = square.shift(-1, -1)
-        if square.file > 0 and self.get_piece(start_square) == 'p':
-            candidates.append(start_square)
-        start_square = square.shift(1, -1)
-        if square.file < 7 and self.get_piece(start_square) == 'p':
-            candidates.append(start_square)
-        return candidates
+    def getcandidates_bpawn(self, target_square: BoardSquare) -> Generator[BoardSquare]:
+        if self.get_piece(target_square) == '':
+            start_square = target_square.shift(0, -1)
+            if self.get_piece(start_square) == 'p':
+                yield start_square
+            elif target_square.rank == 3 and self.get_piece(start_square) == '':
+                start_square = target_square.shift(0, -2)
+                if self.get_piece(start_square) == 'p':
+                    yield start_square
+        if self.get_piece(target_square) != '' or target_square == self.en_passant:
+            if target_square.file != 0:
+                start_square = target_square.shift(-1, -1)
+                if self.get_piece(start_square) == 'p':
+                    yield start_square
+            if target_square.file != 7:
+                start_square = target_square.shift(1, -1)
+                if self.get_piece(start_square) == 'p':
+                    yield start_square
     
-    def getcandidates_knight(self, square: BoardSquare, knight: str) -> list[BoardSquare]:
-        candidates = []
-        for dx, dy in product([-2, -1, 1, 2], repeat=2):
-            knight_square = square.shift(dx, dy)
-            if (abs(dx) != abs(dy) and knight_square.isinrange() and
-                self.get_piece(knight_square) == knight):
-                candidates.append(knight_square)
-        return candidates
+    def getcandidates_knight(self, target_square: BoardSquare, knight: str) -> Generator[BoardSquare]:
+        return(start_square for start_square in self.getsquares_knight(target_square) if self.get_piece(start_square) == knight)
     
-    def getcandidates_bishop(self, square: BoardSquare, bishop: str) -> list[BoardSquare]:
-        candidates = []
-        for x, y in zip(range(square.file-1, -1, -1), 
-                        range(square.rank-1, -1, -1)):
-            start_square = BoardSquare(x, y)
-            piece = self.get_piece(start_square)
-            if piece == bishop:
-                candidates.append(start_square)
-            if piece != '':
-                break
-        for x, y in zip(range(square.file+1, 8, 1), 
-                        range(square.rank-1, -1, -1)):
-            start_square = BoardSquare(x, y)
-            piece = self.get_piece(start_square)
-            if piece == bishop:
-                candidates.append(start_square)
-            if piece != '':
-                break
-        for x, y in zip(range(square.file-1, -1, -1), 
-                        range(square.rank+1, 8, 1)):
-            start_square = BoardSquare(x, y)
-            piece = self.get_piece(start_square)
-            if piece == bishop:
-                candidates.append(start_square)
-            if piece != '':
-                break
-        for x, y in zip(range(square.file+1, 8, 1), 
-                        range(square.rank+1, 8, 1)):
-            start_square = BoardSquare(x, y)
-            piece = self.get_piece(start_square)
-            if piece == bishop:
-                candidates.append(start_square)
-            if piece != '':
-                break
-        return candidates
+    def getcandidates_bishop(self, target_square: BoardSquare, bishop: str) -> Generator[BoardSquare]:
+        return(start_square for start_square in self.getsquares_bishop(target_square) if self.get_piece(start_square) == bishop)
     
-    def getcandidates_rook(self, square: BoardSquare, rook: str) -> list[BoardSquare]:
-        candidates = []
-        for y in range(square.rank+1, 8, 1):
-            start_square = BoardSquare(square.file, y)
-            piece = self.get_piece(start_square)
-            if piece == rook:
-                candidates.append(start_square)
-            if piece != '':
-                break
-        for y in range(square.rank-1, -1, -1):
-            start_square = BoardSquare(square.file, y)
-            piece = self.get_piece(start_square)
-            if piece == rook:
-                candidates.append(start_square)
-            if piece != '':
-                break
-        for x in range(square.file+1, 8, 1):
-            start_square = BoardSquare(x, square.rank)
-            piece = self.get_piece(start_square)
-            if piece == rook:
-                candidates.append(start_square)
-            if piece != '':
-                break
-        for x in range(square.file-1, -1, -1):
-            start_square = BoardSquare(x, square.rank)
-            piece = self.get_piece(start_square)
-            if piece == rook:
-                candidates.append(start_square)
-            if piece != '':
-                break
-        return candidates
+    def getcandidates_rook(self, target_square: BoardSquare, rook: str) -> Generator[BoardSquare]:
+        return(start_square for start_square in self.getsquares_rook(target_square) if self.get_piece(start_square) == rook)
     
-    def getcandidates_queen(self, square: BoardSquare, queen: str) -> list[BoardSquare]:
-        return self.getcandidates_bishop(square, queen) + self.getcandidates_rook(square, queen)
+    def getcandidates_queen(self, target_square: BoardSquare, queen: str) -> Generator[BoardSquare]:
+        for start_square in self.getcandidates_bishop(target_square, queen):
+            if self.get_piece(start_square) == queen:
+                yield start_square
+        for start_square in self.getcandidates_rook(target_square, queen):
+            if self.get_piece(start_square) == queen:
+                yield start_square
     
-    def getcandidates_king(self, square: BoardSquare, king: str) -> list[BoardSquare]:
-        candidates = []
-        for x, y in product(range(max(0, square.rank-1), min(square.rank + 1, 7) + 1), 
-                            range(max(0, square.file-1), min(square.file + 1, 7) + 1)):
-            start_square = BoardSquare(x, y)
-            if self.get_piece(start_square) == king:
-                candidates.append(start_square)
-        return candidates
-
+    def getcandidates_king(self, target_square: BoardSquare, king: str) -> Generator[BoardSquare]:
+        return(start_square for start_square in self.getsquares_king(target_square) if self.get_piece(start_square) == king)
+    
     def getsquares(self, start_square: BoardSquare, piece: str) -> Generator[BoardSquare]:
         """Returns the squares to which the piece can move ignoring king's safety and piece colors.
         Will return squares that are oqupied by the same color piece"""
@@ -498,7 +441,7 @@ class Position:
             case 'K':       return self.getsquares_wking(start_square)
             case 'k':       return self.getsquares_bking(start_square)
             case _: return(i for i in [])
-
+    
     def getsquares_wpawn(self, start_square: BoardSquare) -> Generator[BoardSquare]:
         target_square = start_square.shift(0, -1)
         if self.get_piece(target_square) == '':
