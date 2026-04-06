@@ -56,14 +56,6 @@ class Position:
                 highlights.append(target_square)
         return highlights
     
-    def get_highlights_old(self, square: BoardSquare) -> list[BoardSquare]:
-        squares = []
-        for x, y in product(range(8), repeat=2):
-            target_square = BoardSquare(x, y)
-            if self.is_move_possible(BoardMove(square, target_square)):
-                squares.append(target_square)
-        return squares
-    
     def get_FEN(self) -> ForsythEdwardsNotation:
         notation = ''
         for i, piece in enumerate(self.pos_array):
