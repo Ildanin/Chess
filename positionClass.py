@@ -184,9 +184,9 @@ class Position:
     def handle_promotion(self, square: BoardSquare, piece: str, promote_to: str | None) -> None:
         if promote_to != None:
             self.set_piece(square, promote_to)
-        if piece == 'P':
+        elif piece == 'P' and square.rank == 0:
             self.set_piece(square, 'Q')
-        elif piece == 'p':
+        elif piece == 'p' and square.rank == 7:
             self.set_piece(square, 'q')
     
     def is_move_possible(self, move: BoardMove, available_squares: list[BoardSquare] | None = None) -> bool:
