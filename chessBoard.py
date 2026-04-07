@@ -164,7 +164,7 @@ class ChessBoard:
     def draw_promotion_screen(self) -> None: #add flip
         if self.promotion == None:
             return None
-        if self.promotion.file == 0:
+        if self.promotion.rank == 0:
             pg.draw.rect(self.screen, (255, 255, 255), 
                             pg.Rect(self.x + self.promotion.file * self.square_size, 
                                     self.y + self.promotion.rank * self.square_size, 
@@ -173,7 +173,7 @@ class ChessBoard:
                 self.screen.blit(self.piece_assets[piece], 
                                 (self.x + self.promotion.file * self.square_size, 
                                     self.y + y * self.square_size))
-        elif self.promotion.file == 7:
+        elif self.promotion.rank == 7:
             pg.draw.rect(self.screen, (255, 255, 255), 
                             pg.Rect(self.x + self.promotion.file * self.square_size, 
                                     self.y + (self.promotion.file - 3) * self.square_size, 

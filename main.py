@@ -20,7 +20,7 @@ while True:
         elif event.type == pg.KEYDOWN:
             key = event.key
             if key == pg.K_SPACE:
-                #board.reset()
+                board.reset()
                 pass
     
     '''print(board.position.history[-1])
