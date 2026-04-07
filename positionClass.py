@@ -132,7 +132,7 @@ class Position:
         self.set_piece(move.start, '')
         self.handle_en_passant(move, piece)
         self.handle_castling(move.file1, move.file2, piece)
-        self.handle_promotion(move.target, promote_to)
+        self.handle_promotion(move.target, piece, promote_to)
     
     def handle_en_passant(self, move: BoardMove, piece: str) -> None:
         if piece == 'P':
@@ -181,9 +181,13 @@ class Position:
                     self.set_piece(BoardSquare(5, 0), 'r')
                     self.set_piece(BoardSquare(7, 0), '')
     
-    def handle_promotion(self, square: BoardSquare, promote_to: str | None) -> None:
+    def handle_promotion(self, square: BoardSquare, piece: str, promote_to: str | None) -> None:
         if promote_to != None:
             self.set_piece(square, promote_to)
+        if piece == 'P':
+            self.set_piece(square, 'Q')
+        elif piece == 'p':
+            self.set_piece(square, 'q')
     
     def is_move_possible(self, move: BoardMove, available_squares: list[BoardSquare] | None = None) -> bool:
         "Returns True if the move can be made, False otherwise"
