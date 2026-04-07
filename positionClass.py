@@ -46,7 +46,7 @@ class Position:
         for castle_type in self.castles:
             if self.castles[castle_type]:
                 notation += castle_type
-        if notation[-1] == '':
+        if notation[-1] == ' ':
             notation += '-'
         if self.en_passant:
             notation += self.en_passant.get_algebraic()
