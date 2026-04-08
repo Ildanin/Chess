@@ -61,7 +61,7 @@ class PortableGameNotation:
     def get_results(self) -> str:
         return self.string.split()[-1]
 
-    def get_alg_move_list(self) -> list[str]:
+    def get_alg_moves(self) -> list[str]:
         unfiltered_list = self.string.split()
         filtered_list: list[str] = []
         for alg_move in unfiltered_list[:-1]:
@@ -69,9 +69,9 @@ class PortableGameNotation:
                 filtered_list.append(alg_move)
         return filtered_list
     
-    def get_formatted_alg_move_list(self) -> list[str]:
+    def get_formatted_alg_moves(self) -> list[str]:
         formatted_move_list: list[str] = []
-        for alg_move in self.get_alg_move_list():
+        for alg_move in self.get_alg_moves():
             alg_move = alg_move.replace('x', '')
             alg_move = alg_move.replace('+', '')
             alg_move = alg_move.replace('#', '')
