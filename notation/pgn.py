@@ -1,6 +1,7 @@
 from notation.fen import ForsythEdwardsNotation
 from notation.square import BoardMove, BoardSquare, algebraic_to_board
 from positionClass import Position, WHITE_KING_SQUARE, BLACK_KING_SQUARE, WHITE_BACK_RANK, BLACK_BACK_RANK
+from typing import Generator
 
 #pgn notation
 #Pe4 pe6 Pd4 pb6 Pa3 Bb7 Nc3 Nh6 Bh6 gh6 Be2 Qg5 Bg4 ph5 Nf3 Qg6 Nh4 Qg5 Bh5 Qh4 Qf3 Kd8 Qf7 Nc6 Qe8
@@ -53,14 +54,13 @@ class PortableGameNotation:
     def __init__(self, PGN: str, init_position: ForsythEdwardsNotation = ForsythEdwardsNotation()) -> None:
         self.string = PGN
         self.init_position = init_position
-        self.position = Position(init_position)
     
     def __str__(self) -> str:
         return self.string
     
     def get_results(self) -> str:
         return self.string.split()[-1]
-
+    
     def get_alg_moves(self) -> list[str]:
         unfiltered_list = self.string.split()
         filtered_list: list[str] = []
@@ -79,3 +79,11 @@ class PortableGameNotation:
                 alg_move = 'P' + alg_move
             formatted_move_list.append(alg_move)
         return formatted_move_list
+    
+    def get_moves(self) -> Generator[BoardMove]:
+        alg_moves = self.get_formatted_alg_moves()
+        position = Position(self.init_position)
+        for alg_move in alg_moves:
+            move = get_board_move(alg_move, position)
+            yield move
+            position.move(move, [move.target])
