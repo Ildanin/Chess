@@ -3,7 +3,7 @@ from config import UNTRANSFORMED
 
 def file_transform(input_filename: str, output_filename: str | None = None) -> str:
     if output_filename == None:
-        output_filename = input_filename.partition('.')[0] + 'txt'
+        output_filename = input_filename.partition('.')[0] + '.txt'
     data: list[tuple] = []
     with open(input_filename) as inp_file:
         for line in inp_file:
