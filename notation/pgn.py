@@ -29,7 +29,10 @@ def get_board_move(alg_move: str, position: Position) -> BoardMove:
     add_info = alg_move[1:-2]
     if len(add_info) == 2:
         return BoardMove(algebraic_to_board(add_info), target, promote_to)
-    legal_starts = list(position.getcandidates(target, alg_move[0]))
+    if position.white_move:
+        legal_starts = list(position.getcandidates(target, alg_move[0]))
+    else:
+        legal_starts = list(position.getcandidates(target, alg_move[0].lower()))
     if len(legal_starts) == 1:
         return BoardMove(legal_starts[0], target, promote_to)
     if add_info.isdigit():
