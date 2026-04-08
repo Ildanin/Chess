@@ -24,8 +24,8 @@ while True:
                 pass
     
     '''print(board.position.history[-1])
-    possible_moves = list(board.position.get_possible_moves())
-    if board.position.move(possible_moves[randrange(0, len(possible_moves))]):
+    legal_moves = list(board.position.get_legal_moves())
+    if board.position.move(legal_moves[randrange(0, len(legal_moves))]):
         board.draw()
     if board.ischekmate():
         print('Checkmate')

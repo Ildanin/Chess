@@ -83,7 +83,7 @@ class Position:
             if not(self.is_moved_into_check(BoardMove(start, target))):
                 yield target
     
-    def get_possible_moves(self) -> Generator[BoardMove]:
+    def get_legal_moves(self) -> Generator[BoardMove]:
         for x, y in product(range(8), repeat=2):
             start = BoardSquare(x, y)
             for target in self.get_legal_squares(start):
@@ -100,14 +100,14 @@ class Position:
             return False
         if self.pos_array.count('') == 62:
             return True
-        if any(self.get_possible_moves()):
+        if any(self.get_legal_moves()):
             return False
         return True
     
     def ischeckmate(self) -> bool:
         if not self.ischecked():
             return False
-        if any(self.get_possible_moves()):
+        if any(self.get_legal_moves()):
             return False
         return True
     
