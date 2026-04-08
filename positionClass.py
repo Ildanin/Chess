@@ -114,7 +114,7 @@ class Position:
             return False
         return True
     
-    def move(self, move: BoardMove, promote_to: str | None = None, available_squares: list[BoardSquare] | None = None) -> bool:
+    def move(self, move: BoardMove, available_squares: list[BoardSquare] | None = None) -> bool:
         "Moves the piece if it is posible. Returns True if moved successfully, False otherwise"
         if not(self.is_move_possible(move, available_squares)):
             return False
@@ -124,19 +124,19 @@ class Position:
             self.halfmove_clock += 1
         if self.white_move == False:
             self.fullmove_number += 1
-        self.raw_move(move, promote_to)
+        self.raw_move(move)
         self.white_move = not self.white_move
         self.history.append(move)
         return True
     
-    def raw_move(self, move: BoardMove, promote_to: str | None = None) -> None:
+    def raw_move(self, move: BoardMove) -> None:
         "Makes a move without any checks and does not pass the move"
         piece = self.get_piece(move.start)
         self.set_piece(move.target, piece)
         self.set_piece(move.start, '')
         self.handle_en_passant(move, piece)
         self.handle_castling(move.file1, move.file2, piece)
-        self.handle_promotion(move.target, piece, promote_to)
+        self.handle_promotion(move, piece)
     
     def handle_en_passant(self, move: BoardMove, piece: str) -> None:
         if piece == 'P':
@@ -185,13 +185,11 @@ class Position:
                     self.set_piece(BoardSquare(5, 0), 'r')
                     self.set_piece(BoardSquare(7, 0), '')
     
-    def handle_promotion(self, square: BoardSquare, piece: str, promote_to: str | None) -> None:
-        if promote_to != None:
-            self.set_piece(square, promote_to)
-        elif piece == 'P' and square.rank == 0:
-            self.set_piece(square, 'Q')
-        elif piece == 'p' and square.rank == 7:
-            self.set_piece(square, 'q')
+    def handle_promotion(self, move: BoardMove, piece: str) -> None:
+        if piece == 'P' and move.rank2 == 0:
+            self.set_piece(move.target, move.promote_to.upper())
+        elif piece == 'p' and move.rank2 == 7:
+            self.set_piece(move.target, move.promote_to.lower())
     
     def is_move_possible(self, move: BoardMove, available_squares: list[BoardSquare] | None = None) -> bool:
         "Returns True if the move can be made, False otherwise"

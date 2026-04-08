@@ -34,7 +34,7 @@ class BoardSquare:
         return x_comp + y_comp
 
 class BoardMove:
-    def __init__(self, start: BoardSquare, target: BoardSquare, promote_to: str = 'q') -> None:
+    def __init__(self, start: BoardSquare, target: BoardSquare, promote_to: str = 'Q') -> None:
         self.start = start
         self.target = target
         self.file1 = start.file
