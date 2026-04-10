@@ -7,7 +7,7 @@ class BoardSquare:
         self.id = file + 8*rank
     
     def __str__(self) -> str:
-        return f"({self.file} {self.rank})"
+        return self.get_algebraic()
 
     def __iter__(self) -> Iterator[int]:
         return iter((self.file, self.rank))
@@ -46,7 +46,7 @@ class BoardMove:
         self.dy = None
     
     def __str__(self) -> str:
-        return f"({self.start} {self.target})"
+        return f"{self.start.get_algebraic()} {self.target.get_algebraic()}"
     
     def __iter__(self) -> Iterator[int]:
         return iter((*self.start, *self.target))
