@@ -3,12 +3,6 @@ from notation.square import BoardMove, BoardSquare, algebraic_to_board
 from positionClass import Position, WHITE_KING_SQUARE, BLACK_KING_SQUARE, WHITE_BACK_RANK, BLACK_BACK_RANK
 from typing import Generator
 
-#pgn notation
-#Pe4 pe6 Pd4 pb6 Pa3 Bb7 Nc3 Nh6 Bh6 gh6 Be2 Qg5 Bg4 ph5 Nf3 Qg6 Nh4 Qg5 Bh5 Qh4 Qf3 Kd8 Qf7 Nc6 Qe8
-#Pe4 pc5 Nc3 pd6 Pd4 cd4 Nb5 pe5 Pc3 dc3 Nc3 Nc6 Pf4 Nf6 Nf3 Be7 fe5 de5 Bg5 Bg4 Qb3 O-O Rd1 Qa5 Bd2 Qc7 Nd5 Nd5 ed5 Nd4 Nd4 Bd1 Nb5 Bb3 Nc7 Ba2 Na8 Ra8 Bd3 Bd5 O-O Bc5 Kh1 pg6 Bg5 pf5 Rd1 pe4 Bb5 Bc6 Bc6 bc6 Rc1 Bb6 Rc6 Re8 Pg3 pe3 Kg2 pe2 Bd2 e1=Q Be1 Re1 Kh3 Re2 Rc8 Kg7 Rb8 Rb2 Rb7 Kh6 Pg4 Rb3 Kg2 fg4 Kf1 Rb2
-#Pc4 pf5 Nc3 Nf6 Pg3 pd6 Bg2 pg6 Pe4 fe4 Ne4 Nbd7 Ng5 Ne5 Pb3 ph6 Pd4 Nc6 Pd5 Nb4 Pa3 hg5 ab4 pg4 Ne2 Bf5 Nd4 Qd7 O-O Bg7 Re1 Rh5 Ra2 O-O-O Ra7 Kb8 Ra4 Rdh8 Bh6 Rh8h6 Qa1 Qa4 Qa4 Rh2 Nc6 bc6 dc6
-
-
 
 def get_board_move(alg_move: str, position: Position) -> BoardMove:
     if alg_move == 'O-O':
@@ -51,6 +45,7 @@ def get_board_move(alg_move: str, position: Position) -> BoardMove:
             move = BoardMove(start, target, promote_to)
             if position.is_king_safe(move):
                 return move
+    print(position.get_FEN(), alg_move, *legal_starts)
     raise ValueError("Incorrect algebraic notation")
 
 
@@ -108,3 +103,59 @@ class PortableGameNotation:
             move = get_board_move(alg_move, position)
             position.move(move, [move.target])
         return position
+
+
+def get_PGN(moves: list[BoardMove], init_position: ForsythEdwardsNotation = ForsythEdwardsNotation(), results: str | None = None) -> PortableGameNotation:
+    position = Position(init_position)
+    pgn = ''
+    for i, move in enumerate(moves):
+        if i%2 == 0:
+            pgn += f"{1 + i//2}. "
+        target = move.target.get_algebraic()
+        piece = position.get_piece(move.start)
+        take = ''
+        if position.get_piece(move.target) != '':
+            take = 'x'
+        add_info = ''
+        if piece == 'P' or piece == 'p':
+            if take == 'x' or position.en_passant == move.target:
+                add_info = 'abcdefgh'[move.start.file] + 'x'
+            pgn += add_info + target
+            if move.target.rank == 0 or move.target.rank == 7:
+                pgn += f"={move.promote_to}"
+        elif piece == 'K' or piece == 'k':
+            if (piece == 'K' and position.castles['Q'] and target == 'c1' or 
+                piece == 'k' and position.castles['q'] and target == 'c8'):
+                pgn += 'O-O-O'
+            elif (piece == 'K' and position.castles['K'] and target == 'g1' or 
+                  piece == 'k' and position.castles['k'] and target == 'g8'):
+                pgn += 'O-O'
+            else:
+                pgn += 'K' + take + target
+        else:
+            legal_starts = list(position.getcandidates(move.target, piece))
+            if len(legal_starts) != 1:
+                files = [start.file for start in legal_starts]
+                if files.count(move.start.file) == 1:
+                    add_info += 'abcdefgh'[move.start.file]
+                else:
+                    add_info = move.start.get_algebraic()
+            pgn += piece.upper() + add_info + take + target
+        position.move(move, [move.target])
+        if position.ischeckmate():
+            pgn += '#'
+        elif position.ischecked():
+            pgn += '+'
+        pgn += ' '
+    if results != None:
+        pgn += results
+        return PortableGameNotation(pgn, init_position)
+    if pgn[-2] == '#':
+        if position.white_move:
+            results = '0-1'
+        else:
+            results = '1-0'
+    else:
+        results = '1/2-1/2'
+    pgn += results
+    return PortableGameNotation(pgn, init_position)
