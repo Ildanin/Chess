@@ -49,7 +49,7 @@ def get_board_move(alg_move: str, position: Position) -> BoardMove:
     if len(legal_starts) > 1:
         for start in legal_starts:
             move = BoardMove(start, target, promote_to)
-            if not(position.is_moved_into_check(move)):
+            if position.is_king_safe(move):
                 return move
     raise ValueError("Incorrect algebraic notation")
 

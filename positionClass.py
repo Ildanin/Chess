@@ -83,7 +83,7 @@ class Position:
             if (self.get_piece(target) != '' and 
                 self.white_move == self.get_piece(target).isupper()):
                 continue
-            if not(self.is_moved_into_check(BoardMove(start, target))):
+            if self.is_king_safe(BoardMove(start, target)):
                 yield target
     
     def get_legal_moves(self) -> Generator[BoardMove]:
@@ -206,19 +206,19 @@ class Position:
             self.white_move == self.get_piece(move.target).isupper()):
             return False
         return(self.ismovable(move, piece) and 
-           not(self.is_moved_into_check(move)))
+              (self.is_king_safe(move)))
     
     def ispromotion(self, rank2: int, piece: str) -> bool:
         return(rank2 == 0 and piece == 'P' or 
                rank2 == 7 and piece == 'p')
     
-    def is_moved_into_check(self, move: BoardMove) -> bool:
-        "Returns True if the king will be in check after the given move, False otherwise"
+    def is_king_safe(self, move: BoardMove) -> bool:
+        "Returns True if the king will not be in check after the given move, False otherwise"
         saved_states = self.pos_array.copy(), self.castles.copy(), self.en_passant #saves the state of the game
         self.raw_move(move) #makes a move
         ischecked = self.ischecked()
         self.pos_array, self.castles, self.en_passant = saved_states #returns position to its initial state
-        return ischecked
+        return not(ischecked)
     
     def ismovable(self, move: BoardMove, piece: str) -> bool:
         "Return True if the piece can make the given move, False otherwise"
