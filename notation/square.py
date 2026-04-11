@@ -46,7 +46,7 @@ class BoardMove:
         self.dy = None
     
     def __str__(self) -> str:
-        return f"{self.start.get_algebraic()} {self.target.get_algebraic()}"
+        return self.start.get_algebraic() + self.target.get_algebraic()
     
     def __iter__(self) -> Iterator[int]:
         return iter((*self.start, *self.target))
