@@ -42,18 +42,18 @@ def remove_assessments(pgn_string: str) -> str:
     pgn_string = pgn_string.replace('!', '')
     return pgn_string
 
-if __name__ != '__main__':
-    from notation.pgn import PortableGameNotation
-    def get_games(filename: str, start: int = 0, stop: int | None = None) -> list[PortableGameNotation]:
-        games = []
-        with open(filename) as file:
-            for i, line in enumerate(file):
-                if start > i:
-                    continue
-                if stop != None and stop <= i:
-                    break
-                games.append(PortableGameNotation(line))
-        return games
+if __name__ == '__main__':
+    create_games_file("lichess_db_standard_rated_2013-01.pgn", "games.txt")
+    exit()
 
-else:
-    create_games_file("lichess_db_standard_rated_2013-01.pgn", "dataset.txt")
+from notation.pgn import PortableGameNotation
+def get_games(filename: str, start: int = 0, stop: int | None = None) -> list[PortableGameNotation]:
+    games = []
+    with open(filename) as file:
+        for i, line in enumerate(file):
+            if start > i:
+                continue
+            if stop != None and stop <= i:
+                break
+            games.append(PortableGameNotation(line))
+    return games
