@@ -1,5 +1,6 @@
-from chessBoard import *
-from config import WIN_WIDTH, WIN_HEIGHT
+from chessBoard import ChessBoard
+import pygame as pg
+from config import WIN_WIDTH, WIN_HEIGHT, BOARD_X, BOARD_Y
 from time import perf_counter
 from random import randrange
 
