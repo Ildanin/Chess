@@ -1,5 +1,3 @@
-from notation.pgn import PortableGameNotation
-
 def create_games_file(input_filename: str, output_filename: str | None = None) -> str:
     "Returns the file with games in descending average ELO order"
     if output_filename == None:
@@ -44,16 +42,18 @@ def remove_assessments(pgn_string: str) -> str:
     pgn_string = pgn_string.replace('!', '')
     return pgn_string
 
-def get_games(filename: str, start: int = 0, stop: int | None = None) -> list[PortableGameNotation]:
-    games = []
-    with open(filename) as file:
-        for i, line in enumerate(file):
-            if start > i:
-                continue
-            if stop != None and stop <= i:
-                break
-            games.append(PortableGameNotation(line))
-    return games
+if __name__ != '__main__':
+    from notation.pgn import PortableGameNotation
+    def get_games(filename: str, start: int = 0, stop: int | None = None) -> list[PortableGameNotation]:
+        games = []
+        with open(filename) as file:
+            for i, line in enumerate(file):
+                if start > i:
+                    continue
+                if stop != None and stop <= i:
+                    break
+                games.append(PortableGameNotation(line))
+        return games
 
-if __name__ == '__main__':
+else:
     create_games_file("lichess_db_standard_rated_2013-01.pgn", "dataset.txt")
