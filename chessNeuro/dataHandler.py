@@ -1,5 +1,4 @@
 from notation.pgn import PortableGameNotation
-from config import UNTRANSFORMED
 
 def create_games_file(input_filename: str, output_filename: str | None = None) -> str:
     "Returns the file with games in descending average ELO order"
