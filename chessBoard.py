@@ -2,24 +2,9 @@ import pygame as pg
 from itertools import product
 from config import *
 from positionClass import Position
-from notation.pgn import ForsythEdwardsNotation
 from notation.square import BoardSquare, BoardMove
-import os
+from assets import *
 
-
-BB = pg.image.load(os.path.join("assets", "black_bishop.png "))
-BK = pg.image.load(os.path.join("assets", "black_king.png "))
-BN = pg.image.load(os.path.join("assets", "black_knight.png "))
-BP = pg.image.load(os.path.join("assets", "black_pawn.png "))
-BQ = pg.image.load(os.path.join("assets", "black_queen.png "))
-BR = pg.image.load(os.path.join("assets", "black_rook.png "))
-
-WB = pg.image.load(os.path.join("assets", "white_bishop.png "))
-WK = pg.image.load(os.path.join("assets", "white_king.png "))
-WN = pg.image.load(os.path.join("assets", "white_knight.png "))
-WP = pg.image.load(os.path.join("assets", "white_pawn.png "))
-WQ = pg.image.load(os.path.join("assets", "white_queen.png "))
-WR = pg.image.load(os.path.join("assets", "white_rook.png"))
 
 class ChessBoard:
     def __init__(self, screen: pg.Surface, x: int, y: int, size: int = BOARD_SIZE, position: Position = Position(),
