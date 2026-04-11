@@ -1,7 +1,7 @@
 from network import Network
 import numpy as np
 from config import INFO, ACTIVATOR, NORMALIZER, FACTOR_RANGE, BIAS_RANGE, ALPHA, CYCLES
-from chessNeuro.dataHandler import data_load
+from chessNeuro.dataHandler import get_games
 from notation.pgn import PortableGameNotation
 from positionClass import Position
 
@@ -13,6 +13,6 @@ class ChessAI(Network):
     #    pass
 
 chessAI = ChessAI(INFO, ACTIVATOR, NORMALIZER, FACTOR_RANGE, BIAS_RANGE)
-data = data_load("lichess_db_standard_rated_2013-01txt", 1)
+data = get_games("lichess_db_standard_rated_2013-01txt", 1)
 print(data.__sizeof__()/2**20)
 print(data[0])
