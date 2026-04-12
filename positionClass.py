@@ -33,13 +33,10 @@ class Position:
     def __iter__(self):
         return iter(self.pos_array)
     
-    def reset(self) -> None:
-        self.__init__(self.init_position)
-    
-    def get_FEN(self) -> ForsythEdwardsNotation:
+    def __str__(self) -> str:
         notation = ''
         for i, piece in enumerate(self.pos_array):
-            if (i)%8 == 0:
+            if i%8 == 0:
                 notation += '/'
             if piece == '':
                 if notation[-1].isdigit():
@@ -48,10 +45,13 @@ class Position:
                     notation += '1'
             else:
                 notation += piece
-        if self.white_move:
-            notation += ' w '
-        else:
-            notation += ' b '
+        return notation[-1]
+    
+    def reset(self) -> None:
+        self.__init__(self.init_position)
+    
+    def get_FEN(self) -> ForsythEdwardsNotation:
+        notation = self.__str__()
         for castle_type in self.castles:
             if self.castles[castle_type]:
                 notation += castle_type
