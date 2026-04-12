@@ -89,6 +89,6 @@ def square_decode(encoded_square: str) -> BoardSquare:
     return BoardSquare(int(encoded_square[:3], 2), 
                        int(encoded_square[3:], 2))
 
-def move_decode(endoded_move: str) -> BoardMove:
-    return BoardMove(square_decode(endoded_move[:6]), 
-                     square_decode(endoded_move[6:]))
+def move_decode(encoded_move: str) -> BoardMove:
+    return BoardMove(square_decode(encoded_move[:6]), 
+                     square_decode(encoded_move[6:]))
