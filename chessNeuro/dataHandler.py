@@ -1,4 +1,4 @@
-def create_games_file(input_filename: str, output_filename: str | None = None) -> str:
+def generate_games_file(input_filename: str, output_filename: str | None = None) -> str:
     "Returns the file with games in descending average ELO order"
     if output_filename == None:
         output_filename = input_filename.partition('.')[0] + '.txt'
@@ -43,10 +43,68 @@ def remove_assessments(pgn_string: str) -> str:
     return pgn_string
 
 if __name__ == '__main__':
-    create_games_file("lichess_db_standard_rated_2013-01.pgn", "games.txt")
+    generate_games_file("lichess_db_standard_rated_2013-01.pgn", "games.txt")
     exit()
 
 from notation.pgn import PortableGameNotation
+from positionClass import Position
+import numpy as np
+
+def position_encode(position: Position) -> str:
+    encoded = ''
+    if position.white_move:
+        for piece in position.pos_array:
+            match piece:
+                case '':  encoded += '00000000000'
+                case 'P': encoded += '00000000001'
+                case 'N': encoded += '00000000010'
+                case 'B': encoded += '00000000100'
+                case 'R': encoded += '00000001000'
+                case 'Q': encoded += '00000001100'
+                case 'K': encoded += '00000010000'
+                case 'p': encoded += '00000100000'
+                case 'n': encoded += '00001000000'
+                case 'b': encoded += '00010000000'
+                case 'r': encoded += '00100000000'
+                case 'q': encoded += '01100000000'
+                case 'k': encoded += '10000000000'
+    else:
+        for piece in position.pos_array:
+            match piece:
+                case '':  encoded += '0000000000'
+                case 'P': encoded += '0000000001'
+                case 'N': encoded += '0000000010'
+                case 'B': encoded += '0000000100'
+                case 'R': encoded += '0000001000'
+                case 'Q': encoded += '0000001100'
+                case 'K': encoded += '0000010000'
+                case 'p': encoded += '0000100000'
+                case 'n': encoded += '0001000000'
+                case 'b': encoded += '0010000000'
+                case 'r': encoded += '0100000000'
+                case 'q': encoded += '0110000000'
+                case 'k': encoded += '1000000000'
+    return encoded
+
+
+def get_data(filename: str, start: int, stop: int) -> tuple[list[np.ndarray], list[np.ndarray]]:
+    file = open(filename)
+    positions: list[np.ndarray] = []
+    resulting_moves: list[np.ndarray] = [] 
+    for i, game in enumerate(file):
+        if i < start:
+            continue
+        elif i >= stop:
+            break 
+        position = Position()
+        moves = PortableGameNotation(game).get_moves()
+        for move in moves:
+            positions.append(np.array([int(bit) for bit in position_encode(position)]))
+            resulting_moves.append(np.array([int(bit) for bit in move.encode()]))
+            position.move(move, skip_check=True)
+    file.close()
+    return positions, resulting_moves
+
 def get_games(filename: str, start: int = 0, stop: int | None = None) -> list[PortableGameNotation]:
     games = []
     with open(filename) as file:
