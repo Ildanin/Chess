@@ -119,9 +119,9 @@ class Position:
             return False
         return True
     
-    def move(self, move: BoardMove, available_squares: list[BoardSquare] | None = None) -> bool:
+    def move(self, move: BoardMove, available_squares: list[BoardSquare] | None = None, skip_check: bool = False) -> bool:
         "Moves the piece if it is posible. Returns True if moved successfully, False otherwise"
-        if not(self.is_move_possible(move, available_squares)):
+        if not(self.is_move_possible(move, available_squares, skip_check)):
             return False
         if self.get_piece(move.start).lower() == 'p':
             self.halfmove_clock = 0
@@ -196,7 +196,7 @@ class Position:
         elif piece == 'p' and move.rank2 == 7:
             self.set_piece(move.target, move.promote_to.lower())
     
-    def is_move_possible(self, move: BoardMove, available_squares: list[BoardSquare] | None = None) -> bool:
+    def is_move_possible(self, move: BoardMove, available_squares: list[BoardSquare] | None = None, skip_check: bool = False) -> bool:
         "Returns True if the move can be made, False otherwise"
         if available_squares != None:
             return(move.target in available_squares)

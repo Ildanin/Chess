@@ -75,7 +75,7 @@ class ChessBoard:
                 self.promotion = square
                 self.higlighted_squares = [self.promotion]
             else:
-                self.position.move(BoardMove(self.prev_square, square), self.higlighted_squares)
+                self.position.move(BoardMove(self.prev_square, square), skip_check=True)
                 self.unpick()
         else:
             self.pick(square)

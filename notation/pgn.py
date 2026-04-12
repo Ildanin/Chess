@@ -86,7 +86,7 @@ class PortableGameNotation:
         for alg_move in alg_moves:
             move = get_board_move(alg_move, position)
             yield move
-            position.move(move, [move.target])
+            position.move(move, skip_check=True)
     
     def get_FENs(self) -> Generator[ForsythEdwardsNotation]:
         alg_moves = self.get_formatted_alg_moves()
@@ -94,14 +94,14 @@ class PortableGameNotation:
         for alg_move in alg_moves:
             yield position.get_FEN()
             move = get_board_move(alg_move, position)
-            position.move(move, [move.target])
+            position.move(move, skip_check=True)
     
     def get_position(self) -> Position:
         alg_moves = self.get_formatted_alg_moves()
         position = Position(self.init_position)
         for alg_move in alg_moves:
             move = get_board_move(alg_move, position)
-            position.move(move, [move.target])
+            position.move(move, skip_check=True)
         return position
 
 
@@ -141,7 +141,7 @@ def get_PGN(moves: list[BoardMove], init_position: ForsythEdwardsNotation = Fors
                 else:
                     add_info = move.start.get_algebraic()
             pgn += piece.upper() + add_info + take + target
-        position.move(move, [move.target])
+        position.move(move, skip_check=True)
         if position.ischeckmate():
             pgn += '#'
         elif position.ischecked():
