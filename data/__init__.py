@@ -1,9 +1,12 @@
+import os
+datasets_path = os.path.dirname(__file__)
+
 def generate_games_file(input_filename: str, output_filename: str | None = None) -> str:
     "Returns the file with games in descending average ELO order"
     if output_filename == None:
         output_filename = input_filename.partition('.')[0] + '.txt'
     data: list[tuple] = []
-    with open(input_filename) as inp_file:
+    with open(os.path.join(datasets_path, input_filename)) as inp_file:
         for line in inp_file:
             if line == '\n':
                 pass
@@ -22,7 +25,7 @@ def generate_games_file(input_filename: str, output_filename: str | None = None)
                 game = remove_evaluations(line)
                 game = remove_assessments(game)
                 data.append((avg_elo, game))
-    with open(output_filename, 'w') as out_file:
+    with open(os.path.join(datasets_path, output_filename), 'w') as out_file:
         for avg_elo, game in sorted(data, reverse=True):
             out_file.write(game)
     return output_filename
@@ -88,7 +91,7 @@ def position_encode(position: Position) -> str:
 
 
 def get_data(filename: str, start: int, stop: int) -> tuple[list[np.ndarray], list[np.ndarray]]:
-    file = open(filename)
+    file = open(os.path.join(datasets_path, filename))
     positions: list[np.ndarray] = []
     resulting_moves: list[np.ndarray] = [] 
     for i, game in enumerate(file):
@@ -107,7 +110,7 @@ def get_data(filename: str, start: int, stop: int) -> tuple[list[np.ndarray], li
 
 def get_games(filename: str, start: int = 0, stop: int | None = None) -> list[PortableGameNotation]:
     games = []
-    with open(filename) as file:
+    with open(os.path.join(datasets_path, filename)) as file:
         for i, line in enumerate(file):
             if start > i:
                 continue
