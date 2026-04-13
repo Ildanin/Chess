@@ -2,11 +2,16 @@ from chessAI import ChessAI, load_chessAI
 from chessAI.data import get_data
 from config import INFO, ACTIVATOR, NORMALIZER, FACTOR_RANGE, BIAS_RANGE, ALPHA, MOMENTUM_RATE, CYCLES
 
-#ai = ChessAI(INFO, ACTIVATOR, NORMALIZER, FACTOR_RANGE, BIAS_RANGE)
-ai = load_chessAI("ChessAI2.txt")
+ai = ChessAI(INFO, ACTIVATOR, NORMALIZER, FACTOR_RANGE, BIAS_RANGE)
+ai = load_chessAI("ChessAI_A1.txt")
+print("loaded")
+input()
+exit()
 
-train_x, train_y = get_data("data.txt", 2500, 5000)
+train_x, train_y = get_data("data.txt", 0, 5000)
 
-#ai.train_stochastic_momentum(train_x, train_y, ALPHA, MOMENTUM_RATE, CYCLES, 2000, True)
-ai.train_vanilla(train_x, train_y, 0.01, 10, True)
-ai.save("ChessAI3.txt")
+ai.train_stochastic_momentum(train_x, train_y, ALPHA, MOMENTUM_RATE, CYCLES, 700, True)
+
+#ai.train_vanilla(train_x, train_y, 0.01, 10, True)
+
+ai.save("ChessAI_A2.txt")
