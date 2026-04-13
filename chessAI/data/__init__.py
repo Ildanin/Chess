@@ -2,6 +2,7 @@ from notation.pgn import PortableGameNotation
 from positionClass import Position
 import numpy as np
 import os
+
 datasets_path = os.path.dirname(__file__)
 
 def position_encode(position: Position) -> np.ndarray:
