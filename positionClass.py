@@ -198,6 +198,8 @@ class Position:
     
     def is_move_possible(self, move: BoardMove, available_squares: list[BoardSquare] | None = None, skip_check: bool = False) -> bool:
         "Returns True if the move can be made, False otherwise"
+        if skip_check:
+            return True
         if available_squares != None:
             return(move.target in available_squares)
         if not(move.start.isinrange() and move.target.isinrange()):
