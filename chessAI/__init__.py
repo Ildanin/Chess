@@ -8,9 +8,10 @@ class ChessAI(Network):
         move = super().process(position_encode(position))
         return move_decode(''.join(str(round(bit)) for bit in move))
     
-    def move(self, position: Position, skip_check: bool = False) -> None:
+    def move(self, position: Position, skip_check: bool = False) -> BoardMove:
         move = self.get_move(position)
         position.move(move, skip_check=skip_check)
+        return move
 
 
 def load_chessAI(filename: str) -> ChessAI:
