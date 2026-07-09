@@ -1,5 +1,5 @@
 import os
-datasets_path = os.path.dirname(__file__)
+from chessAI.data import datasets_path
 
 def generate_games_file(input_filename: str, output_filename: str | None = None, elo_threshold: int | None = None) -> str:
     "Generates the file with games in descending average ELO order"
