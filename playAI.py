@@ -8,8 +8,8 @@ import numpy as np
 screen = pg.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
 clock = pg.Clock()
 board = ChessBoard(screen, BOARD_X, BOARD_Y)
-start_ai = load("start2.pt")
-target_ai = load("target2.pt", False)
+start_ai = load("start1.pt")
+target_ai = load("target1.pt", False)
 
 while True:
     for event in pg.event.get():

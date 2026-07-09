@@ -2,8 +2,9 @@ import argparse
 import torch
 import torch.optim as optim
 from torch.optim.lr_scheduler import StepLR
-from chessAI import ChessAI, train, test, load
+from chessAI import Start_predictor, Target_predictor, train, test, load
 from chessAI.data import Games
+from time import perf_counter
 
 parser = argparse.ArgumentParser(description='Chess-predictor')
 parser.add_argument('--batch-size', type=int, default=100, metavar='N',
@@ -40,16 +41,19 @@ else:
 train_kwargs = {'batch_size': args.batch_size}
 test_kwargs = {'batch_size': args.test_batch_size}
 if use_accel:
-    accel_kwargs = {'num_workers': 1,
+    accel_kwargs = {'num_workers': 4,
                     'persistent_workers': True,
                     'pin_memory': True,
                     'shuffle': True}
     train_kwargs.update(accel_kwargs)
     test_kwargs.update(accel_kwargs)
 
-isstart = False
-dataset1 = Games("data.txt", 0, 2000, False, isstart)
-dataset2 = Games("data.txt", 2000, 2100, False, isstart)
+isstart = True
+t1 = perf_counter()
+dataset1 = Games("data.txt", 0, 10000, False, isstart)
+t2 = perf_counter()
+print(t2-t1)
+dataset2 = Games("data.txt", 10000, 11000, False, isstart)
 #dataset1 = Games("data.txt", 0, 200, False, isstart)
 #dataset2 = Games("data.txt", 200, 210, False, isstart)
 
@@ -57,9 +61,8 @@ train_loader = torch.utils.data.DataLoader(dataset1,**train_kwargs)
 test_loader = torch.utils.data.DataLoader(dataset2, **test_kwargs)
 
 
-
-model = ChessAI(isstart).to(device)
-#model = load("start1.pt")
+model = Start_predictor().to(device)
+#model = Target_predictor().to(device)
 optimizer = optim.Adadelta(model.parameters(), lr=args.lr)
 
 scheduler = StepLR(optimizer, step_size=1, gamma=args.gamma)
@@ -69,4 +72,4 @@ for epoch in range(1, args.epochs + 1):
     scheduler.step()
 
 if args.save_model:
-    torch.save(model.state_dict(), "chessAI/networks/target2.pt")
+    torch.save(model.state_dict(), "chessAI/networks/start1.pt")

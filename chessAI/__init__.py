@@ -8,8 +8,8 @@ saved_networks_path = os.path.join(os.path.dirname(__file__), "networks")
 class Start_predictor(nn.Module):
     def __init__(self):
         super(Start_predictor, self).__init__()
-        self.conv1 = nn.Conv2d(12, 32, 4, 1)
-        self.conv2 = nn.Conv2d(32, 128, 3, 1)
+        self.conv1 = nn.Conv2d(12, 64, 4, 1)
+        self.conv2 = nn.Conv2d(64, 128, 3, 1)
         self.dropout1 = nn.Dropout(0.25)
         self.dropout2 = nn.Dropout(0.5)
         self.fc1 = nn.Linear(128, 128)
@@ -32,8 +32,9 @@ class Start_predictor(nn.Module):
 
 class Target_predictor(nn.Module):
     def __init__(self):
-        self.conv1 = nn.Conv2d(13, 32, 4, 1)
-        self.conv2 = nn.Conv2d(32, 128, 3, 1)
+        super(Target_predictor, self).__init__()
+        self.conv1 = nn.Conv2d(13, 64, 4, 1)
+        self.conv2 = nn.Conv2d(64, 128, 3, 1)
         self.dropout1 = nn.Dropout(0.25)
         self.dropout2 = nn.Dropout(0.5)
         self.fc1 = nn.Linear(128, 128)

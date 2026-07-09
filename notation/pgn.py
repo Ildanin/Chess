@@ -88,6 +88,14 @@ class PortableGameNotation:
             yield move
             position.move(move, skip_check=True)
     
+    def get_position_move_pairs(self) -> Generator[tuple[Position, BoardMove]]:
+        alg_moves = self.get_formatted_alg_moves()
+        position = Position(self.init_position)
+        for alg_move in alg_moves:
+            move = get_board_move(alg_move, position)
+            yield position, move
+            position.move(move, skip_check=True)
+    
     def get_FENs(self) -> Generator[ForsythEdwardsNotation]:
         alg_moves = self.get_formatted_alg_moves()
         position = Position(self.init_position)

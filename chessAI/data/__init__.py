@@ -35,14 +35,8 @@ def position_encode_target(position: Position, square: BoardSquare) -> torch.Ten
     encoded = np.append(encoded, start_matrix, axis=0)
     return torch.tensor(encoded, dtype= torch.float)
 
-def encode_start(move: BoardMove) -> int:
-    return move.start.id
-
-def encode_target(move: BoardMove) -> int:
-    return move.target.id
-
 class Games(torch.utils.data.Dataset):
-    def __init__(self, filename: str, start: int, stop: int, color_filter: bool | None = None, isstart: bool = True) -> None:
+    def __init__(self, filename: str, start: int, stop: int, color_filter: bool | None = None, isstart: bool = True, min_fullmove: int = 0, max_fullmove: int = -1) -> None:
         file = open(os.path.join(datasets_path, filename))
         self.positions: list[torch.Tensor] = []
         self.resulting_moves: list[int] = []
@@ -58,11 +52,11 @@ class Games(torch.utils.data.Dataset):
                     position.move(move, skip_check=True)
                     continue
                 if isstart:
-                    self.positions.append(position_encode_start(position, ))
-                    self.resulting_moves.append(encode_start(move))
+                    self.positions.append(position_encode_start(position))
+                    self.resulting_moves.append(move.start.id)
                 else:
                     self.positions.append(position_encode_target(position, move.start))
-                    self.resulting_moves.append(encode_target(move))
+                    self.resulting_moves.append(move.target.id)
                 position.move(move, skip_check=True)
         file.close()
     
