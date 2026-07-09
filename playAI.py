@@ -1,8 +1,6 @@
 from chessBoard import ChessBoard, BoardMove, BoardSquare
 import pygame as pg
 from config import WIN_WIDTH, WIN_HEIGHT, BOARD_X, BOARD_Y
-from time import perf_counter
-from random import randrange
 from chessAI import load
 from chessAI.data import position_encode_start, position_encode_target, torch
 import numpy as np
@@ -11,7 +9,7 @@ screen = pg.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
 clock = pg.Clock()
 board = ChessBoard(screen, BOARD_X, BOARD_Y)
 start_ai = load("start2.pt")
-target_ai = load("target1.pt", False)
+target_ai = load("target2.pt", False)
 
 while True:
     for event in pg.event.get():

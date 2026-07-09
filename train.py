@@ -48,8 +48,10 @@ if use_accel:
     test_kwargs.update(accel_kwargs)
 
 isstart = False
-dataset1 = Games("data.txt", 0, 20000, False, isstart)
-dataset2 = Games("data.txt", 20000, 21000, False, isstart)
+dataset1 = Games("data.txt", 0, 2000, False, isstart)
+dataset2 = Games("data.txt", 2000, 2100, False, isstart)
+#dataset1 = Games("data.txt", 0, 200, False, isstart)
+#dataset2 = Games("data.txt", 200, 210, False, isstart)
 
 train_loader = torch.utils.data.DataLoader(dataset1,**train_kwargs)
 test_loader = torch.utils.data.DataLoader(dataset2, **test_kwargs)
