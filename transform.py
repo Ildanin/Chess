@@ -1,5 +1,19 @@
-import os
 from chessAI.data import datasets_path
+from notation.pgn import PortableGameNotation
+import os
+
+def extract_data(input_filename: str, output_filename: str, start: int = 0, stop: int | None = None) -> None:
+    inp_file = open(os.path.join(datasets_path, input_filename))
+    out_file = open(os.path.join(datasets_path, output_filename), 'w')
+    for i, game in enumerate(inp_file):
+        if i < start:
+            continue
+        if stop != None and i >= stop:
+            break
+        for position, move in PortableGameNotation(game).get_position_move_pairs():
+            out_file.write(f"{position} {move.start.id} {move.target.id} {int(position.white_move)}\n")
+    inp_file.close()
+    out_file.close()
 
 def generate_games_file(input_filename: str, output_filename: str | None = None, elo_threshold: int | None = None) -> str:
     "Generates the file with games in descending average ELO order"
@@ -56,17 +70,17 @@ if __name__ == '__main__':
 
     inp_database = input(f"Database: (default={database})")
     inp_filename = input(f"Filename: (default={filename})")
-    inp_threshold = input(f"threshold: (default={None})")
+    inp_threshold = input(f"Threshold: (default={threshold})")
     
     if inp_database != "":
         database = inp_database
     if inp_filename != "":
         filename = inp_filename
     if inp_threshold != "":
-        threshold = inp_threshold
+        threshold = int(inp_threshold)
     
     t1 = perf_counter()
-    generate_games_file("lichess_db_standard_rated_2013-01.pgn", "data.txt")
+    generate_games_file(database, filename, threshold)
     t2 = perf_counter()
     print(30*'=')
     print(f"Finished in {round(t2-t1, 2)} seconds")
