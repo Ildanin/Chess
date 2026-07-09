@@ -45,7 +45,7 @@ class Position:
                     notation += '1'
             else:
                 notation += piece
-        return notation[-1]
+        return notation[1:]
     
     def reset(self) -> None:
         self.__init__(self.init_position)
