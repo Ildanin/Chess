@@ -20,8 +20,8 @@ while True:
             board.draw()
             if not board.position.white_move:
                 with torch.no_grad():
-                    start_id = start_ai(torch.tensor(np.array([position_encode_start(board.position).numpy()]))).argmax()
-                    target_id = target_ai(torch.tensor(np.array([position_encode_target(board.position, BoardSquare(start_id%8, start_id//8)).numpy()]))).argmax()
+                    start_id = start_ai(torch.tensor(np.array([position_encode_start(board.position.pos_array)]))).argmax()
+                    target_id = target_ai(torch.tensor(np.array([position_encode_target(board.position.pos_array, start_id)]))).argmax()
                 board.show_move(BoardMove(BoardSquare(start_id%8, start_id//8), BoardSquare(target_id%8, target_id//8)))
         elif event.type == pg.KEYDOWN:
             key = event.key
