@@ -2,7 +2,7 @@ from chessAI.data import datasets_path
 from notation.pgn import PortableGameNotation
 import os
 
-def extract_data(input_filename: str, output_filename: str, start: int = 0, stop: int | None = None) -> None:
+def extract_positions(input_filename: str, output_filename: str, start: int = 0, stop: int | None = None) -> None:
     inp_file = open(os.path.join(datasets_path, input_filename))
     out_file = open(os.path.join(datasets_path, output_filename), 'w')
     for i, game in enumerate(inp_file):
@@ -15,7 +15,7 @@ def extract_data(input_filename: str, output_filename: str, start: int = 0, stop
     inp_file.close()
     out_file.close()
 
-def generate_games_file(input_filename: str, output_filename: str | None = None, elo_threshold: int | None = None) -> str:
+def extract_games(input_filename: str, output_filename: str | None = None, elo_threshold: int | None = None) -> str:
     "Generates the file with games in descending average ELO order"
     if output_filename == None:
         output_filename = input_filename.partition('.')[0] + '.txt'
@@ -68,19 +68,37 @@ if __name__ == '__main__':
     filename = "data.txt"
     threshold = None
 
-    inp_database = input(f"Database: (default={database})")
-    inp_filename = input(f"Filename: (default={filename})")
-    inp_threshold = input(f"Threshold: (default={threshold})")
-    
+    start = 0
+    stop = None
+
+    inp_database = input(f"Database: (default={database}) ")
     if inp_database != "":
         database = inp_database
-    if inp_filename != "":
-        filename = inp_filename
-    if inp_threshold != "":
-        threshold = int(inp_threshold)
     
+    games_extraction = database.split('.')[-1] == 'pgn'
+    inp_filename = input(f"Filename: (default={filename}) ")
+    if inp_filename != '':
+        filename = inp_filename
+    if games_extraction:
+        inp_threshold = input(f"Threshold: (default={threshold}) ")
+        if inp_threshold != '':
+            threshold = int(inp_threshold)
+    else:
+        inp_start = input(f"Start: (default={start}) ")
+        inp_stop = input(f"Stop: (default={stop}) ")
+        if inp_start != '':
+            start = int(inp_start)
+        if inp_stop != '':
+            stop = int(inp_stop)
+
     t1 = perf_counter()
-    generate_games_file(database, filename, threshold)
+    if games_extraction:
+        extract_games(database, filename, threshold)
+    else:
+        extract_positions(database, filename, start, stop)
     t2 = perf_counter()
     print(30*'=')
-    print(f"Finished in {round(t2-t1, 2)} seconds")
+    if games_extraction:
+        print(f"Games extraction finished in {round(t2-t1, 2)} seconds")
+    else:
+        print(f"Positions extraction finished in {round(t2-t1, 2)} seconds")
