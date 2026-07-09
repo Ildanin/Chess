@@ -1,27 +1,75 @@
-from network import Network
-from positionClass import Position
-from notation.square import BoardMove, BoardSquare, move_decode
-from chessAI.data import position_encode
 import os
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
 
 saved_networks_path = os.path.join(os.path.dirname(__file__), "networks")
 
-class ChessAI(Network):
-    def get_move(self, position: Position) -> BoardMove:
-        square = super().process(position_encode(position))
-        square = BoardSquare(int(square[:8].argmax()), int(square[8:].argmax()))
-        return BoardMove(square, square)
-    
-    def move(self, position: Position, skip_check: bool = False) -> BoardMove:
-        move = self.get_move(position)
-        position.move(move, skip_check=skip_check)
-        return move
-    
-    def save(self, filename: str) -> None:
-        return super().save(os.path.join(saved_networks_path, filename))
+class ChessAI(nn.Module):
+    def __init__(self, isstart: bool = True):
+        super(ChessAI, self).__init__()
+        channels = 13
+        if isstart:
+            channels = 12
+        self.conv1 = nn.Conv2d(channels, 32, 3, 1)
+        self.conv2 = nn.Conv2d(32, 64, 3, 1)
+        self.dropout1 = nn.Dropout(0.25)
+        self.dropout2 = nn.Dropout(0.5)
+        self.fc1 = nn.Linear(256, 128)
+        self.fc2 = nn.Linear(128, 64)
+
+    def forward(self, x):
+        x = self.conv1(x)
+        x = F.relu(x)
+        x = self.conv2(x)
+        x = F.relu(x)
+        x = F.max_pool2d(x, 2)
+        x = self.dropout1(x)
+        x = torch.flatten(x, 1)
+        x = self.fc1(x)
+        x = F.relu(x)
+        x = self.dropout2(x)
+        x = self.fc2(x)
+        output = F.log_softmax(x, dim=1)
+        return output
+
+def train(args, model, device, train_loader, optimizer, epoch):
+    model.train()
+    for batch_idx, (data, target) in enumerate(train_loader):
+        data, target = data.to(device), target.to(device)
+        optimizer.zero_grad()
+        output = model(data)
+        loss = F.nll_loss(output, target)
+        loss.backward()
+        optimizer.step()
+        if batch_idx % args.log_interval == 0:
+            print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
+                epoch, batch_idx * len(data), len(train_loader.dataset),
+                100. * batch_idx / len(train_loader), loss.item()))
+            if args.dry_run:
+                break
 
 
-def load_chessAI(filename: str) -> ChessAI:
-    ai = ChessAI([], 'linear')
-    ai.load(os.path.join(saved_networks_path, filename))
-    return ai
+def test(model, device, test_loader):
+    model.eval()
+    test_loss = 0
+    correct = 0
+    with torch.no_grad():
+        for data, target in test_loader:
+            data, target = data.to(device), target.to(device)
+            output = model(data)
+            test_loss += F.nll_loss(output, target, reduction='sum').item()  # sum up batch loss
+            pred = output.argmax(dim=1, keepdim=True)  # get the index of the max log-probability
+            correct += pred.eq(target.view_as(pred)).sum().item()
+
+    test_loss /= len(test_loader.dataset)
+
+    print('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(
+        test_loss, correct, len(test_loader.dataset),
+        100. * correct / len(test_loader.dataset)))
+
+def load(filename: str, isstart: bool = True) -> ChessAI:
+    model = ChessAI(isstart)
+    model.load_state_dict(torch.load(os.path.join(saved_networks_path, filename), weights_only=True))
+    model.eval()
+    return model

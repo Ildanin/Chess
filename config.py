@@ -12,13 +12,6 @@ BLACK_COLOR = (118, 150, 86)
 HIGHLIGHT_COLOR = (0, 255, 0)
 HIGHLIGHT_MOVES = True
 
-#Network default values
-INFO = [832, 100, 16]
-ACTIVATOR = 'L_ReLU'
-NORMALIZER = 'softsign'
-FACTOR_RANGE = (-0.9, 0.9)
-BIAS_RANGE = (-0.9, 0.9)
-
 #Learning default values
 ALPHA = 0.1
 MOMENTUM_RATE = 0.3

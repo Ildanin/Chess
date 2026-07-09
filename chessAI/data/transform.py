@@ -68,5 +68,5 @@ if __name__ == '__main__':
     t1 = perf_counter()
     generate_games_file("lichess_db_standard_rated_2013-01.pgn", "data.txt")
     t2 = perf_counter()
-    print('======================================')
+    print(30*'=')
     print(f"Finished in {round(t2-t1, 2)} seconds")

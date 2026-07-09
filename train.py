@@ -1,14 +1,70 @@
-from chessAI import ChessAI, load_chessAI
-from chessAI.data import get_data
-from config import INFO, ACTIVATOR, NORMALIZER, FACTOR_RANGE, BIAS_RANGE, ALPHA, MOMENTUM_RATE, CYCLES
+import argparse
+import torch
+import torch.optim as optim
+from torch.optim.lr_scheduler import StepLR
+from chessAI import ChessAI, train, test, load
+from chessAI.data import Games
 
-ai = ChessAI(INFO, ACTIVATOR, NORMALIZER, FACTOR_RANGE, BIAS_RANGE)
-#ai = load_chessAI("ChessAI_C2.txt")
+parser = argparse.ArgumentParser(description='Chess-predictor')
+parser.add_argument('--batch-size', type=int, default=100, metavar='N',
+                    help='input batch size for training (default: 64)')
+parser.add_argument('--test-batch-size', type=int, default=1000, metavar='N',
+                    help='input batch size for testing (default: 1000)')
+parser.add_argument('--epochs', type=int, default=6, metavar='N',
+                    help='number of epochs to train (default: 14)')
+parser.add_argument('--lr', type=float, default=1.0, metavar='LR',
+                    help='learning rate (default: 1.0)')
+parser.add_argument('--gamma', type=float, default=1, metavar='M',
+                    help='Learning rate step gamma (default: 0.7)')
+parser.add_argument('--no-accel', action='store_true',
+                    help='disables accelerator')
+parser.add_argument('--dry-run', action='store_true', default=False, 
+                    help='quickly check a single pass')
+parser.add_argument('--seed', type=int, default=1, metavar='S',
+                    help='random seed (default: 1)')
+parser.add_argument('--log-interval', type=int, default=10, metavar='N',
+                    help='how many batches to wait before logging training status')
+parser.add_argument('--save-model', action='store_true', default=True,
+                    help='For Saving the current Model')
+args = parser.parse_args()
 
-train_x, train_y = get_data("data.txt", 0, 12000, False)
+use_accel = not args.no_accel and torch.accelerator.is_available()
 
-ai.train_stochastic_momentum(train_x, train_y, ALPHA, MOMENTUM_RATE, CYCLES, 1000, True)
+torch.manual_seed(args.seed)
 
-#ai.train_vanilla(train_x, train_y, 0.04, 5, True)
+if use_accel:
+    device = torch.accelerator.current_accelerator()
+else:
+    device = torch.device("cpu")
 
-ai.save("ChessAI_A1.txt")
+train_kwargs = {'batch_size': args.batch_size}
+test_kwargs = {'batch_size': args.test_batch_size}
+if use_accel:
+    accel_kwargs = {'num_workers': 1,
+                    'persistent_workers': True,
+                    'pin_memory': True,
+                    'shuffle': True}
+    train_kwargs.update(accel_kwargs)
+    test_kwargs.update(accel_kwargs)
+
+isstart = False
+dataset1 = Games("data.txt", 0, 20000, False, isstart)
+dataset2 = Games("data.txt", 20000, 21000, False, isstart)
+
+train_loader = torch.utils.data.DataLoader(dataset1,**train_kwargs)
+test_loader = torch.utils.data.DataLoader(dataset2, **test_kwargs)
+
+
+
+model = ChessAI(isstart).to(device)
+#model = load("start1.pt")
+optimizer = optim.Adadelta(model.parameters(), lr=args.lr)
+
+scheduler = StepLR(optimizer, step_size=1, gamma=args.gamma)
+for epoch in range(1, args.epochs + 1):
+    train(args, model, device, train_loader, optimizer, epoch)
+    test(model, device, test_loader)
+    scheduler.step()
+
+if args.save_model:
+    torch.save(model.state_dict(), "chessAI/networks/target2.pt")

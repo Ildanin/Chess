@@ -1,90 +1,73 @@
 from notation.pgn import PortableGameNotation
-from notation.square import BoardMove
+from notation.square import BoardMove, BoardSquare
 from positionClass import Position
 import numpy as np
 import os
+import torch as torch
 
 datasets_path = os.path.dirname(__file__)
 
-'''def position_encode(position: Position) -> np.ndarray:
-    encoded = []
-    if position.white_move:
-        for piece in position.pos_array:
-            match piece:
-                case '':  encoded += [0,0,0,0,0,0,0,0,0,0,0,0,1]
-                case 'P': encoded += [0,0,0,0,0,0,0,0,0,0,0,1,0]
-                case 'N': encoded += [0,0,0,0,0,0,0,0,0,0,1,0,0]
-                case 'B': encoded += [0,0,0,0,0,0,0,0,0,1,0,0,0]
-                case 'R': encoded += [0,0,0,0,0,0,0,0,1,0,0,0,0]
-                case 'Q': encoded += [0,0,0,0,0,0,0,1,0,0,0,0,0]
-                case 'K': encoded += [0,0,0,0,0,0,1,0,0,0,0,0,0]
-                case 'p': encoded += [0,0,0,0,0,1,0,0,0,0,0,0,0]
-                case 'n': encoded += [0,0,0,0,1,0,0,0,0,0,0,0,0]
-                case 'b': encoded += [0,0,0,1,0,0,0,0,0,0,0,0,0]
-                case 'r': encoded += [0,0,1,0,0,0,0,0,0,0,0,0,0]
-                case 'q': encoded += [0,1,0,0,0,0,0,0,0,0,0,0,0]
-                case 'k': encoded += [1,0,0,0,0,0,0,0,0,0,0,0,0]
-    else:
-        for piece in position.pos_array:
-            match piece:
-                case '':  encoded += [0,0,0,0,0,0,0,0,0,0,0,0,1]
-                case 'p': encoded += [0,0,0,0,0,0,0,0,0,0,0,1,0]
-                case 'n': encoded += [0,0,0,0,0,0,0,0,0,0,1,0,0]
-                case 'b': encoded += [0,0,0,0,0,0,0,0,0,1,0,0,0]
-                case 'r': encoded += [0,0,0,0,0,0,0,0,1,0,0,0,0]
-                case 'q': encoded += [0,0,0,0,0,0,0,1,0,0,0,0,0]
-                case 'k': encoded += [0,0,0,0,0,0,1,0,0,0,0,0,0]
-                case 'P': encoded += [0,0,0,0,0,1,0,0,0,0,0,0,0]
-                case 'N': encoded += [0,0,0,0,1,0,0,0,0,0,0,0,0]
-                case 'B': encoded += [0,0,0,1,0,0,0,0,0,0,0,0,0]
-                case 'R': encoded += [0,0,1,0,0,0,0,0,0,0,0,0,0]
-                case 'Q': encoded += [0,1,0,0,0,0,0,0,0,0,0,0,0]
-                case 'K': encoded += [1,0,0,0,0,0,0,0,0,0,0,0,0]
-    return np.array(encoded)'''
-
-def position_encode(position: Position) -> np.ndarray:
-    encoded = []
-    for piece in position.pos_array:
+def position_encode_start(position: Position) -> torch.Tensor:
+    encoded = np.zeros((12, 8, 8))
+    channel = 0
+    for i, piece in enumerate(position.pos_array):
         match piece:
-            case '':  encoded += [0,0,0,0,0,0,0,0,0,0,0,0,1]
-            case 'P': encoded += [0,0,0,0,0,0,0,0,0,0,0,1,0]
-            case 'N': encoded += [0,0,0,0,0,0,0,0,0,0,1,0,0]
-            case 'B': encoded += [0,0,0,0,0,0,0,0,0,1,0,0,0]
-            case 'R': encoded += [0,0,0,0,0,0,0,0,1,0,0,0,0]
-            case 'Q': encoded += [0,0,0,0,0,0,0,1,0,0,0,0,0]
-            case 'K': encoded += [0,0,0,0,0,0,1,0,0,0,0,0,0]
-            case 'p': encoded += [0,0,0,0,0,1,0,0,0,0,0,0,0]
-            case 'n': encoded += [0,0,0,0,1,0,0,0,0,0,0,0,0]
-            case 'b': encoded += [0,0,0,1,0,0,0,0,0,0,0,0,0]
-            case 'r': encoded += [0,0,1,0,0,0,0,0,0,0,0,0,0]
-            case 'q': encoded += [0,1,0,0,0,0,0,0,0,0,0,0,0]
-            case 'k': encoded += [1,0,0,0,0,0,0,0,0,0,0,0,0]
-    return np.array(encoded)
+            case '' : continue
+            case 'P': channel = 0
+            case 'N': channel = 1
+            case 'B': channel = 2
+            case 'R': channel = 3
+            case 'Q': channel = 4
+            case 'K': channel = 5
+            case 'p': channel = 6
+            case 'n': channel = 7
+            case 'b': channel = 8
+            case 'r': channel = 9
+            case 'q': channel = 10
+            case 'k': channel = 11
+        encoded[channel, i//8, i%8] = 1
+    return torch.tensor(encoded, dtype= torch.float)
 
-def move_encode(move: BoardMove) -> np.ndarray:
-    #encoded = np.zeros(32)
-    encoded = np.zeros(16)
-    encoded[move.file1] = 1
-    encoded[8+move.rank1] = 1
-    #encoded[16+move.file2] = 1
-    #encoded[24+move.rank2] = 1
-    return encoded
+def position_encode_target(position: Position, square: BoardSquare) -> torch.Tensor:
+    encoded = position_encode_start(position).numpy()
+    start_matrix = np.zeros((1,8,8))
+    start_matrix[0, square.file, square.rank] = 1
+    encoded = np.append(encoded, start_matrix, axis=0)
+    return torch.tensor(encoded, dtype= torch.float)
 
-def get_data(filename: str, start: int, stop: int, filter_white: bool | None = None) -> tuple[list[np.ndarray], list[np.ndarray]]:
-    file = open(os.path.join(datasets_path, filename))
-    positions: list[np.ndarray] = []
-    resulting_moves: list[np.ndarray] = [] 
-    for i, game in enumerate(file):
-        if i < start:
-            continue
-        elif i >= stop:
-            break
-        position = Position()
-        moves = PortableGameNotation(game).get_moves()
-        for move in moves:
-            if filter_white == None or filter_white == position.white_move:
-                positions.append(position_encode(position))
-                resulting_moves.append(move_encode(move))
-            position.move(move, skip_check=True)
-    file.close()
-    return positions, resulting_moves
+def encode_start(move: BoardMove) -> int:
+    return move.start.id
+
+def encode_target(move: BoardMove) -> int:
+    return move.target.id
+
+class Games(torch.utils.data.Dataset):
+    def __init__(self, filename: str, start: int, stop: int, color_filter: bool | None = None, isstart: bool = True) -> None:
+        file = open(os.path.join(datasets_path, filename))
+        self.positions: list[torch.Tensor] = []
+        self.resulting_moves: list[int] = []
+        for i, game in enumerate(file):
+            if i < start:
+                continue
+            elif i >= stop:
+                break
+            position = Position()
+            moves = PortableGameNotation(game).get_moves()
+            for move in moves:
+                if color_filter != None and color_filter != position.white_move:
+                    position.move(move, skip_check=True)
+                    continue
+                if isstart:
+                    self.positions.append(position_encode_start(position, ))
+                    self.resulting_moves.append(encode_start(move))
+                else:
+                    self.positions.append(position_encode_target(position, move.start))
+                    self.resulting_moves.append(encode_target(move))
+                position.move(move, skip_check=True)
+        file.close()
+    
+    def __len__(self):
+        return len(self.positions)
+    
+    def __getitem__(self, index) -> tuple[torch.Tensor, int]:
+        return self.positions[index], self.resulting_moves[index]
