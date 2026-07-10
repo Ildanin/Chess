@@ -2,7 +2,6 @@ from chessBoard import ChessBoard
 import pygame as pg
 from config import WIN_WIDTH, WIN_HEIGHT, BOARD_X, BOARD_Y
 from chessAI import load_chessAI
-from chessAI.data import torch
 
 screen = pg.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
 clock = pg.Clock()
@@ -19,8 +18,8 @@ while True:
             board.process_left_click(*pg.mouse.get_pos())
             board.draw()
             if not board.position.white_move:
-                with torch.no_grad():
-                    move = chessAI.predict(board.position)
+                move = chessAI.predict(board.position)
+                print(board.position.fullmove_number)
                 board.show_move(move)
         elif event.type == pg.KEYDOWN:
             key = event.key

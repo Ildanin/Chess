@@ -2,7 +2,7 @@ import argparse
 import torch
 import torch.optim as optim
 from torch.optim.lr_scheduler import StepLR
-from chessAI import Start_predictor, Target_predictor, train, test, load_predictor
+from chessAI import Start_predictor, Target_predictor, train, test, load_start_predictor, load_target_predictor
 from chessAI.data import Games
 from time import perf_counter
 
@@ -48,21 +48,18 @@ if use_accel:
     train_kwargs.update(accel_kwargs)
     test_kwargs.update(accel_kwargs)
 
-isstart = True
-t1 = perf_counter()
-dataset1 = Games("data10.txt", 0, 300_000, False, isstart=isstart)
-t2 = perf_counter()
-print(t2-t1)
-dataset2 = Games("data10.txt", 300_000, 300_000 + 10_000, False, isstart=isstart)
-#dataset1 = Games("data.txt", 0, 200, False, isstart)
-#dataset2 = Games("data.txt", 200, 210, False, isstart)
+isstart = False
+dataset1 = Games("data_end.txt", 0, 300_000, False, isstart=isstart)
+dataset2 = Games("data_end.txt", 300_000, 300_000 + 10_000, False, isstart=isstart)
 
 train_loader = torch.utils.data.DataLoader(dataset1,**train_kwargs)
 test_loader = torch.utils.data.DataLoader(dataset2, **test_kwargs)
 
+if isstart:
+    model = Start_predictor().to(device)
+else:
+    model = Target_predictor().to(device)
 
-model = Start_predictor().to(device)
-#model = Target_predictor().to(device)
 optimizer = optim.Adadelta(model.parameters(), lr=args.lr)
 
 scheduler = StepLR(optimizer, step_size=1, gamma=args.gamma)
@@ -72,4 +69,4 @@ for epoch in range(1, args.epochs + 1):
     scheduler.step()
 
 if args.save_model:
-    torch.save(model.state_dict(), "chessAI/networks/start1.pt")
+    torch.save(model.state_dict(), "chessAI/networks/target_end.pt")

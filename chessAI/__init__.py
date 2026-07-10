@@ -74,17 +74,17 @@ class ChessAI:
         start_prediction = torch.zeros(64)
         target_prediction = torch.zeros(64)
         if position.fullmove_number <= 15:
-            start_prediction += self.start_opn(torch.tensor(array([position_encode_start(position.pos_array)]), dtype=torch.float))
+            start_prediction += self.start_opn(torch.tensor(array([position_encode_start(position.pos_array)]), dtype=torch.float))[0,:]
             start_id = start_prediction.argmax()
-            target_prediction += self.target_opn(torch.tensor(array([position_encode_target(position.pos_array, start_id)]), dtype=torch.float))
-        if position.fullmove_number >= 10 and position.fullmove_number <= 25:
-            start_prediction += self.start_mid(torch.tensor(array([position_encode_start(position.pos_array)]), dtype=torch.float))
+            target_prediction += self.target_opn(torch.tensor(array([position_encode_target(position.pos_array, start_id)]), dtype=torch.float))[0,:]
+        if position.fullmove_number >= 15 and position.fullmove_number <= 25:
+            start_prediction += self.start_mid(torch.tensor(array([position_encode_start(position.pos_array)]), dtype=torch.float))[0,:]
             start_id = start_prediction.argmax()
-            target_prediction += self.target_mid(torch.tensor(array([position_encode_target(position.pos_array, start_id)]), dtype=torch.float))
-        if position.fullmove_number >= 20:
-            start_prediction += self.start_end(torch.tensor(array([position_encode_start(position.pos_array)]), dtype=torch.float))
+            target_prediction += self.target_mid(torch.tensor(array([position_encode_target(position.pos_array, start_id)]), dtype=torch.float))[0,:]
+        if position.fullmove_number >= 25:
+            start_prediction += self.start_end(torch.tensor(array([position_encode_start(position.pos_array)]), dtype=torch.float))[0,:]
             start_id = start_prediction.argmax()
-            target_prediction += self.target_end(torch.tensor(array([position_encode_target(position.pos_array, start_id)]), dtype=torch.float))
+            target_prediction += self.target_end(torch.tensor(array([position_encode_target(position.pos_array, start_id)]), dtype=torch.float))[0,:]
         target_id = int(target_prediction.argmax())
         return BoardMove(BoardSquare(start_id%8, start_id//8), BoardSquare(target_id%8, target_id//8))
 
