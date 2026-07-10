@@ -2,7 +2,7 @@ import argparse
 import torch
 import torch.optim as optim
 from torch.optim.lr_scheduler import StepLR
-from chessAI import Start_predictor, Target_predictor, train, test, load
+from chessAI import Start_predictor, Target_predictor, train, test, load_predictor
 from chessAI.data import Games
 from time import perf_counter
 

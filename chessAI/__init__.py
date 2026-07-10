@@ -89,7 +89,7 @@ def test(model, device, test_loader):
         test_loss, correct, len(test_loader.dataset),
         100. * correct / len(test_loader.dataset)))
 
-def load(filename: str, isstart: bool = True) -> Start_predictor | Target_predictor:
+def load_predictor(filename: str, isstart: bool = True) -> Start_predictor | Target_predictor:
     if isstart:
         model = Start_predictor()
     else:
