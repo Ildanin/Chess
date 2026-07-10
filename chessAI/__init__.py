@@ -1,7 +1,11 @@
 import os
+from numpy import array
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from positionClass import Position
+from notation.square import BoardMove, BoardSquare
+from .data import position_encode_start, position_encode_target
 
 saved_networks_path = os.path.join(os.path.dirname(__file__), "networks")
 
@@ -15,7 +19,7 @@ class Start_predictor(nn.Module):
         self.fc1 = nn.Linear(128, 128)
         self.fc2 = nn.Linear(128, 64)
 
-    def forward(self, x):
+    def forward(self, x) -> torch.Tensor:
         x = self.conv1(x)
         x = F.relu(x)
         x = self.conv2(x)
@@ -40,7 +44,7 @@ class Target_predictor(nn.Module):
         self.fc1 = nn.Linear(128, 128)
         self.fc2 = nn.Linear(128, 64)
 
-    def forward(self, x):
+    def forward(self, x) -> torch.Tensor:
         x = self.conv1(x)
         x = F.relu(x)
         x = self.conv2(x)
@@ -54,6 +58,36 @@ class Target_predictor(nn.Module):
         x = self.fc2(x)
         output = F.log_softmax(x, dim=1)
         return output
+
+class ChessAI:
+    def __init__(self, start_opn: Start_predictor, target_opn: Target_predictor, 
+                       start_mid: Start_predictor, target_mid: Target_predictor, 
+                       start_end: Start_predictor, target_end: Target_predictor) -> None:
+        self.start_opn = start_opn
+        self.target_opn = target_opn
+        self.start_mid = start_mid
+        self.target_mid = target_mid
+        self.start_end = start_end
+        self.target_end = target_end
+    
+    def predict(self, position: Position) -> BoardMove:
+        start_prediction = torch.zeros(64)
+        target_prediction = torch.zeros(64)
+        if position.fullmove_number <= 15:
+            start_prediction += self.start_opn(torch.tensor(array([position_encode_start(position.pos_array)]), dtype=torch.float))
+            start_id = start_prediction.argmax()
+            target_prediction += self.target_opn(torch.tensor(array([position_encode_target(position.pos_array, start_id)]), dtype=torch.float))
+        if position.fullmove_number >= 10 and position.fullmove_number <= 25:
+            start_prediction += self.start_mid(torch.tensor(array([position_encode_start(position.pos_array)]), dtype=torch.float))
+            start_id = start_prediction.argmax()
+            target_prediction += self.target_mid(torch.tensor(array([position_encode_target(position.pos_array, start_id)]), dtype=torch.float))
+        if position.fullmove_number >= 20:
+            start_prediction += self.start_end(torch.tensor(array([position_encode_start(position.pos_array)]), dtype=torch.float))
+            start_id = start_prediction.argmax()
+            target_prediction += self.target_end(torch.tensor(array([position_encode_target(position.pos_array, start_id)]), dtype=torch.float))
+        target_id = int(target_prediction.argmax())
+        return BoardMove(BoardSquare(start_id%8, start_id//8), BoardSquare(target_id%8, target_id//8))
+
 
 def train(args, model, device, train_loader, optimizer, epoch):
     model.train()
@@ -89,11 +123,25 @@ def test(model, device, test_loader):
         test_loss, correct, len(test_loader.dataset),
         100. * correct / len(test_loader.dataset)))
 
-def load_predictor(filename: str, isstart: bool = True) -> Start_predictor | Target_predictor:
-    if isstart:
-        model = Start_predictor()
-    else:
-        model = Target_predictor()
+def load_start_predictor(filename: str) -> Start_predictor:
+    model = Start_predictor()
     model.load_state_dict(torch.load(os.path.join(saved_networks_path, filename), weights_only=True))
     model.eval()
     return model
+
+def load_target_predictor(filename: str) -> Target_predictor:
+    model = Target_predictor()
+    model.load_state_dict(torch.load(os.path.join(saved_networks_path, filename), weights_only=True))
+    model.eval()
+    return model
+
+def load_chessAI(start_opn_file: str, target_opn_file: str, 
+                 start_mid_file: str, target_mid_file: str, 
+                 start_end_file: str, target_end_file: str) -> ChessAI:
+    start_opn = load_start_predictor(start_opn_file)
+    target_opn = load_target_predictor(target_opn_file)
+    start_mid = load_start_predictor(start_mid_file)
+    target_mid = load_target_predictor(target_mid_file)
+    start_end = load_start_predictor(start_end_file)
+    target_end = load_target_predictor(target_end_file)
+    return ChessAI(start_opn, target_opn, start_mid, target_mid, start_end, target_end)
