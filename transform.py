@@ -70,7 +70,8 @@ def remove_assessments(pgn_string: str) -> str:
 if __name__ == '__main__':
     from time import perf_counter
 
-    database = "lichess_db_standard_rated_2013-01.pgn"
+    #database = "lichess_db_standard_rated_2013-01.pgn"
+    database = "games.txt"
     filename = "data.txt"
     threshold = None
 

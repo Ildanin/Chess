@@ -1,15 +1,15 @@
-from chessBoard import ChessBoard, BoardMove, BoardSquare
+from chessBoard import ChessBoard
 import pygame as pg
 from config import WIN_WIDTH, WIN_HEIGHT, BOARD_X, BOARD_Y
-from chessAI import load_predictor
-from chessAI.data import position_encode_start, position_encode_target, torch
-import numpy as np
+from chessAI import load_chessAI
+from chessAI.data import torch
 
 screen = pg.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
 clock = pg.Clock()
 board = ChessBoard(screen, BOARD_X, BOARD_Y)
-start_ai = load_predictor("start1.pt")
-target_ai = load_predictor("target1.pt", False)
+chessAI = load_chessAI("start_opn.pt", "target_opn.pt", 
+                       "start_mid.pt", "target_mid.pt", 
+                       "start_end.pt", "target_end.pt")
 
 while True:
     for event in pg.event.get():
@@ -20,9 +20,8 @@ while True:
             board.draw()
             if not board.position.white_move:
                 with torch.no_grad():
-                    start_id = start_ai(torch.tensor(np.array([position_encode_start(board.position.pos_array)]), dtype=torch.float)).argmax()
-                    target_id = target_ai(torch.tensor(np.array([position_encode_target(board.position.pos_array, start_id)]), dtype=torch.float)).argmax()
-                board.show_move(BoardMove(BoardSquare(start_id%8, start_id//8), BoardSquare(target_id%8, target_id//8)))
+                    move = chessAI.predict(board.position)
+                board.show_move(move)
         elif event.type == pg.KEYDOWN:
             key = event.key
             if key == pg.K_SPACE:

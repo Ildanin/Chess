@@ -36,8 +36,8 @@ def position_encode_target(position_array: list[str], square_id: int) -> np.ndar
 class Games(torch.utils.data.Dataset):
     def __init__(self, filename: str, start: int = 0, stop: int | None = None, color_filter: bool | None = None, first_move: int = 0, last_move: int | None = None, isstart: bool = True) -> None:
         file = open(os.path.join(datasets_path, filename))
-        self.positions: list[torch.Tensor] = []  
-        self.squares: list[int] = []        
+        self.positions: list[torch.Tensor] = []
+        self.squares: list[int] = []
         for i, info in enumerate(file):
             if i < start:
                 continue
