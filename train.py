@@ -50,10 +50,10 @@ if use_accel:
 
 isstart = True
 t1 = perf_counter()
-dataset1 = Games("data.txt", 0, 10000, False, isstart)
+dataset1 = Games("data10.txt", 0, 300_000, False, isstart=isstart)
 t2 = perf_counter()
 print(t2-t1)
-dataset2 = Games("data.txt", 10000, 11000, False, isstart)
+dataset2 = Games("data10.txt", 300_000, 300_000 + 10_000, False, isstart=isstart)
 #dataset1 = Games("data.txt", 0, 200, False, isstart)
 #dataset2 = Games("data.txt", 200, 210, False, isstart)
 

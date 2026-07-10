@@ -34,16 +34,20 @@ def position_encode_target(position_array: list[str], square_id: int) -> np.ndar
     return encoded
 
 class Games(torch.utils.data.Dataset):
-    def __init__(self, filename: str, start: int, stop: int, color_filter: bool | None = None, isstart: bool = True) -> None:
+    def __init__(self, filename: str, start: int = 0, stop: int | None = None, color_filter: bool | None = None, first_move: int = 0, last_move: int | None = None, isstart: bool = True) -> None:
         file = open(os.path.join(datasets_path, filename))
         self.positions: list[torch.Tensor] = []  
         self.squares: list[int] = []        
         for i, info in enumerate(file):
             if i < start:
                 continue
-            elif i >= stop:
+            elif stop != None and i >= stop:
                 break
-            position_FEN, start_id, target_id, color = info.split()
+            position_FEN, start_id, target_id, color, fullmove_number = info.split()
+            if first_move > int(fullmove_number):
+                continue
+            if last_move != None and last_move < int(fullmove_number):
+                continue
             if color_filter != None and color_filter != int(color):
                 continue
             pos_array = ForsythEdwardsNotation(position_FEN).get_position_array()

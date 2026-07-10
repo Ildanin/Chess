@@ -2,7 +2,7 @@ from chessAI.data import datasets_path
 from notation.pgn import PortableGameNotation
 import os
 
-def extract_positions(input_filename: str, output_filename: str, start: int = 0, stop: int | None = None) -> None:
+def extract_positions(input_filename: str, output_filename: str, start: int = 0, stop: int | None = None, color_filter: bool | None = None, first_move: int = 0, last_move: int | None = None) -> None:
     inp_file = open(os.path.join(datasets_path, input_filename))
     out_file = open(os.path.join(datasets_path, output_filename), 'w')
     for i, game in enumerate(inp_file):
@@ -11,7 +11,13 @@ def extract_positions(input_filename: str, output_filename: str, start: int = 0,
         if stop != None and i >= stop:
             break
         for position, move in PortableGameNotation(game).get_position_move_pairs():
-            out_file.write(f"{position} {move.start.id} {move.target.id} {int(position.white_move)}\n")
+            if first_move > position.fullmove_number:
+                continue
+            if last_move != None and last_move < position.fullmove_number:
+                break
+            if color_filter != None and color_filter != position.white_move:
+                continue
+            out_file.write(f"{position} {move.start.id} {move.target.id} {int(position.white_move)} {position.fullmove_number}\n")
     inp_file.close()
     out_file.close()
 
@@ -70,6 +76,9 @@ if __name__ == '__main__':
 
     start = 0
     stop = None
+    color = None
+    first_move = 0
+    last_move = None
 
     inp_database = input(f"Database: (default={database}) ")
     if inp_database != "":
@@ -86,16 +95,25 @@ if __name__ == '__main__':
     else:
         inp_start = input(f"Start: (default={start}) ")
         inp_stop = input(f"Stop: (default={stop}) ")
+        inp_color = input(f"Color: (default={color}) ")
+        inp_first_move = input(f"First_move: (default={first_move}) ")
+        inp_last_move = input(f"Last_move: (default={last_move}) ")
         if inp_start != '':
             start = int(inp_start)
         if inp_stop != '':
             stop = int(inp_stop)
+        if inp_color != '':
+            color = bool(int(inp_color))
+        if inp_first_move != '':
+            first_move = int(inp_first_move)
+        if inp_last_move != '':
+            last_move = int(inp_last_move)
 
     t1 = perf_counter()
     if games_extraction:
         extract_games(database, filename, threshold)
     else:
-        extract_positions(database, filename, start, stop)
+        extract_positions(database, filename, start, stop, color, first_move, last_move)
     t2 = perf_counter()
     print(30*'=')
     if games_extraction:
